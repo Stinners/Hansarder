@@ -26,9 +26,6 @@ def main():
         scraper = init_scraper(page, start, stop, 5)
         links = get_links_in_range(scraper)
 
-        for link in links:
-            print(link.title)
-
         browser.close()
 
 if __name__ == "__main__":
