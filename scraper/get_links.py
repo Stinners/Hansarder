@@ -6,6 +6,7 @@ from playwright.sync_api import Page, Locator
 from typing import Optional, TypeVar, List
 from datetime import date
 from time import sleep
+import logging
 
 from parser_types import *
 
@@ -20,15 +21,17 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
     scraper.page.goto(root + "/en/pb/hansard-debates/rhr/")
 
     while link_in_range or links == []:
-        print("Starting page")
+        logging.debug(f"Starting page: {scraper.page.url}")
         for section in Locators(scraper.page, ".hansard__list-item"):
             link = get_hansard_link(section)
             link_in_range = in_range(link, scraper)
             if link_in_range:
+                logging.debug(link.title)
                 links.append(link)
             else:
                 break
 
+        logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
         goto_next_page(scraper.page)
 
