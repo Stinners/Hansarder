@@ -8,7 +8,7 @@ from datetime import date
 from time import sleep
 import logging
 
-from parser_types import *
+from scraper_types import *
 
 T = TypeVar('T')
 root = "https://www.parliament.nz"
@@ -24,17 +24,18 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
         logging.debug(f"Starting page: {scraper.page.url}")
         for section in Locators(scraper.page, ".hansard__list-item"):
             link = get_hansard_link(section)
-            link_in_range = in_range(link, scraper)
+            link_in_range = scraper.date_range.contains_link(link)
             if link_in_range:
                 logging.debug(link.title)
                 links.append(link)
             else:
-                break
+                return links
 
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
         goto_next_page(scraper.page)
 
+    # this should never actually be reached
     return links
 
 # Takes the element corresponding to a single day of the Hansard and extracts 
@@ -76,11 +77,6 @@ def goto_next_page(page: Page):
         page.wait_for_load_state("networkidle")
     else:
         raise ScraperError("Couldn't find next page button")
-
-# For the pruposes of this code start is the earliest date and stop is the latest
-# This compares inclusivly
-def in_range(link: HansardLink, scraper: Scraper) -> bool:
-    return link.dates.continued_from <= scraper.start and link.dates.continued_from >= scraper.stop
 
 def string_to_date(string: str) -> date:
     """ Takes a date string of the format YYYYMMDD - as presented in the Hansard urls - and converts it to 
