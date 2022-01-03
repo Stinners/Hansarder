@@ -7,18 +7,18 @@ from typing import Optional, TypeVar, List
 from datetime import date
 from time import sleep
 import logging
+import pickle
 
 from scraper_types import *
 
 T = TypeVar('T')
-root = "https://www.parliament.nz"
 
 def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
     links = []
     link_in_range = False
 
     # Goto the page to start 
-    scraper.page.goto(root + "/en/pb/hansard-debates/rhr/")
+    scraper.page.goto(scraper.start_url)
 
     while link_in_range or links == []:
         logging.debug(f"Starting page: {scraper.page.url}")
@@ -28,15 +28,16 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
             if link_in_range:
                 logging.debug(link.title)
                 links.append(link)
-            else:
+                write_checkpoint(scraper, link)
+            elif links != []:
                 return links
 
+        goto_next_page(scraper)
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
-        goto_next_page(scraper.page)
 
     # this should never actually be reached
-    return links
+    raise Exception("This should be unreachable")
 
 # Takes the element corresponding to a single day of the Hansard and extracts 
 # this into a HansardLink class 
@@ -70,11 +71,11 @@ def get_hansard_link(elem: Locator) -> HansardLink:
 
 # This will need to handle parliments before this one 
 # I should also check this works on slow networks
-def goto_next_page(page: Page):
-    next_button = page.query_selector(".pagination__next .js-pagination-link")
+def goto_next_page(scraper: Scraper):
+    next_button = scraper.page.query_selector(".pagination__next .js-pagination-link")
     if next_button != None:
         next_button.click()
-        page.wait_for_load_state("networkidle")
+        scraper.page.wait_for_load_state("networkidle")
     else:
         raise ScraperError("Couldn't find next page button")
 
@@ -115,6 +116,21 @@ class Locators:
         else: 
             return next_elem 
 
+def write_checkpoint(scraper: Scraper, last_link: HansardLink):
+    if scraper.checkpoint_file == None:
+        return 
+    else:
+        checkpoint = Checkpoint(
+            current_url = scraper.page.url,
+            last_date_processed = last_link.dates.actual_date
+        )
+
+        try:
+            with open(scraper.checkpoint_file, 'wb') as check_file:
+                pickle.dump(checkpoint, check_file)
+
+        except:
+            logging.warn(f"Couldn't write checkpoint to: {scraper.checkpoint_file}")
 
 def unwrap(opt: Optional[T], message: str) -> T:
     if opt is None:
