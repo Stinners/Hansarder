@@ -1,10 +1,9 @@
 # This file is responsible for reading the link of sessions and 
 # extracting as much information as possible from those pages 
 # it also handles managing the range of sessions to pull from 
-from playwright.sync_api import Page, Locator
+from playwright.sync_api import Locator
 
-from typing import Optional, TypeVar, List
-from datetime import date
+from typing import TypeVar, List, Tuple
 from time import sleep
 import logging
 import pickle
@@ -22,8 +21,9 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
 
     while link_in_range or links == []:
         logging.debug(f"Starting page: {scraper.page.url}")
-        for section in Locators(scraper.page, ".hansard__list-item"):
-            link = get_hansard_link(section)
+        locator = scraper.page.locator(".hansard__list-item")
+        for section in Locators(scraper.page, locator):
+            link = get_hansard_link(scraper, section)
             link_in_range = scraper.date_range.contains_link(link)
             if link_in_range:
                 logging.debug(link.title)
@@ -39,16 +39,80 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
     # this should never actually be reached
     raise Exception("This should be unreachable")
 
+def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
+    sub_list = elem.locator(".hansard__sub-list")
+    debates = []
+    sections = Locators(scraper.page, sub_list.locator(".hansard__sub-item"))
+    for section in sections:
+        title = section.locator("h3").inner_text()
+        speeches = get_speeches(scraper, section)
+
+        debate = DebateLink(
+            title = title,
+            type = None,
+            speeches = speeches
+        )
+        debates.append(debate)
+
+    return debates
+
+def expand_section(section: Locator):
+    toggle = section.locator("> .js-hansard__toggle")
+    is_expanded = toggle.get_attribute("aria-expanded") == "true"
+    if not is_expanded:
+        toggle.click()
+
+# Do a better job of handling errors here
+def get_question(section: Locator) -> Tuple[str, str]:
+    question_text = section.locator("h5").inner_text()
+    topic = question_text.split("—")[1].strip()        # NB this isn't a normal hyphen 
+
+    speaker_text = section.locator("p.list__cell-text").inner_text()
+    speaker = speaker_text.split("(")[0].strip()
+
+    return (speaker, topic)
+
+def get_speech(section: Locator) -> str:
+    return section.locator("h5").inner_text().strip()
+
+# This function is called once for each debate 
+def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
+    # First we need to expand the speeches 
+    expand_section(elem)
+    elem.element_handle().wait_for_selector(".hansard__child-list")
+
+    speeches = []
+    locators = elem.locator(".hansard__child-list .hansard__content")
+    for section in Locators(scraper.page, locators):
+        speaker = None 
+        topic = None
+
+        # We need to identify if we have a speech or a question
+        doctype = section.locator(".hansard__doctype").inner_text()
+        if doctype == "Question":
+            speaker, topic = get_question(section)
+        elif doctype == "Speech":
+            speaker = get_speech(section)
+        elif doctype == "Vote":
+            pass 
+        else:
+            raise ScraperError(f"Unrecognized speech type {doctype}")
+
+        speeches.append(SpeechLink(
+            type = doctype,
+            topic = topic,
+            speaker = speaker
+        ))
+
+    return speeches
+
 # Takes the element corresponding to a single day of the Hansard and extracts 
 # this into a HansardLink class 
 # This takes a .hansard_list__item locator
-def get_hansard_link(elem: Locator) -> HansardLink:
+def get_hansard_link(scraper: Scraper, elem: Locator) -> HansardLink:
 
     # Expand the Debates
-    hansard_toggle = unwrap(elem.locator(".hansard__toggle"), "Could not find expand button")
-    is_expanded = hansard_toggle.get_attribute("aria-expanded") == "true"
-    if not is_expanded:
-        hansard_toggle.click()
+    expand_section(elem)
 
     #Get the href for the link
     anchor = unwrap(elem.locator(".hansard__content h2 a"), "Could not find anchor element")
@@ -58,6 +122,8 @@ def get_hansard_link(elem: Locator) -> HansardLink:
 
     dates = get_dates_from_url(url)
 
+    debates = get_debates(scraper, elem)
+
     # Get each of the debate
     #debate_elems = unwrap(elem.query_selector_all(".hansard__sub-item"), "Could not find debates")
     #debates = [get_debate(elem) for elem in debate_elems]
@@ -65,7 +131,7 @@ def get_hansard_link(elem: Locator) -> HansardLink:
     return HansardLink(
             title=title,
             dates=dates,
-            debates=[],
+            debates=debates,
             url=url,
     )
 
@@ -99,9 +165,9 @@ def get_dates_from_url(url: str) -> SessionDate:
         raise ScraperError(f"Could not get date from url: {url}")
 
 class Locators:
-    def __init__(self, page, selector):
+    def __init__(self, page, locator: Locator):
 
-        self.locator = page.locator(selector)
+        self.locator = locator 
         self.page = page
         self.n = 0
 

@@ -68,8 +68,9 @@ def main(
 
     # Loading config
     logging.basicConfig(filename=log_file, level=log_level)
-    root = "https://www.parliament.nz"
-    start_url = root + "/en/pb/hansard-debates/rhr/"
+
+    # We use this as the start url so we can get all past parliaments, not just the currently sitting one
+    start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=-1&criteria.Timeframe=&criteria.DateFrom=&criteria.DateTo=&parliamentStartDate=&parliamentEndDate="
     date_range = DateRange(start, stop)
 
     # Starting a browser and setting up the Scraper
@@ -97,5 +98,4 @@ if __name__ == "__main__":
     main(
         stop = date.fromisoformat("2021-08-04"),
         log_level = logging.DEBUG,
-        checkpoint_file = "checkpoint.json",
     )
