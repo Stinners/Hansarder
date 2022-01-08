@@ -9,6 +9,8 @@ import logging
 import pickle
 
 from scraper_types import *
+from utilities import Locators
+import debate_types
 
 T = TypeVar('T')
 
@@ -39,17 +41,31 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
     # this should never actually be reached
     raise Exception("This should be unreachable")
 
+def get_type(debate_title: str) -> Optional[str]:
+    for text, type in debate_types.exact_matches.items():
+        if debate_title == text: return type
+
+    for text, type in debate_types.contains.items():
+        if text in debate_title: return type
+
+    #for regex, type in debate_types.regex.items():
+    #    if regex.search(debate_title): return type 
+
+    return None
+
 def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
     sub_list = elem.locator(".hansard__sub-list")
     debates = []
     sections = Locators(scraper.page, sub_list.locator(".hansard__sub-item"))
     for section in sections:
-        title = section.locator("h3").inner_text()
+        title = section.locator("h3").inner_text().strip()
         speeches = get_speeches(scraper, section)
+
+        type = get_type(title)
 
         debate = DebateLink(
             title = title,
-            type = None,
+            type = type,
             speeches = speeches
         )
         debates.append(debate)
@@ -98,10 +114,13 @@ def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
         else:
             raise ScraperError(f"Unrecognized speech type {doctype}")
 
+        # At this stage we create the speech with an empty text field
+        # this will be populated later
         speeches.append(SpeechLink(
             type = doctype,
             topic = topic,
-            speaker = speaker
+            speaker = speaker,
+            text = None,
         ))
 
     return speeches
@@ -163,24 +182,6 @@ def get_dates_from_url(url: str) -> SessionDate:
         return SessionDate(actual_date, contined_from)
     except:
         raise ScraperError(f"Could not get date from url: {url}")
-
-class Locators:
-    def __init__(self, page, locator: Locator):
-
-        self.locator = locator 
-        self.page = page
-        self.n = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        next_elem = self.locator.nth(self.n)
-        self.n += 1
-        if self.n > self.locator.count():
-            raise StopIteration
-        else: 
-            return next_elem 
 
 def write_checkpoint(scraper: Scraper, last_link: HansardLink):
     if scraper.checkpoint_file == None:

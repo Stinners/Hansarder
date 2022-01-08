@@ -29,7 +29,7 @@ def reload_checkpoint(checkpoint_file: Optional[str]) -> Optional[Checkpoint]:
         return None
 
 def init_scraper(
-    page: Page, 
+    browser: Browser, 
     date_range: DateRange, 
     seconds_delay: int, 
     checkpoint_file: Optional[str], 
@@ -42,7 +42,8 @@ def init_scraper(
         date_range.start = checkpoint.last_date_processed - timedelta(days=1)
 
     return Scraper(
-        page = page,
+        browser = browser,
+        page = browser.new_page(),
         date_range = date_range,
         seconds_delay = seconds_delay,
         start_url = start_url,
@@ -76,8 +77,7 @@ def main(
     # Starting a browser and setting up the Scraper
     with sync_playwright() as p:
         browser = p.firefox.launch()
-        page = browser.new_page()
-        scraper = init_scraper(page, date_range, seconds_delay, checkpoint_file, start_url)
+        scraper = init_scraper(browser, date_range, seconds_delay, checkpoint_file, start_url)
 
         # Running the actual Scraper 
         logging.info("Starting Scraper")

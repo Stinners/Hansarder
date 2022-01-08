@@ -3,7 +3,7 @@
 # out of the main seach page, it is retreived at this level to provide 
 # metadata for the main text
 
-from playwright.sync_api import Page
+from playwright.sync_api import Page, Browser
 
 from datetime import date
 from dataclasses import dataclass
@@ -14,6 +14,7 @@ class SpeechLink:
     type: str
     topic: Optional[str]
     speaker: Optional[str]
+    html: Optional[str]
 
 @dataclass
 class DebateLink:
@@ -80,3 +81,4 @@ class Scraper:
     seconds_delay: int
     start_url: str
     checkpoint_file: Optional[str]
+    browser: Browser
