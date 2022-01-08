@@ -1,6 +1,8 @@
 
 from playwright.sync_api import Page, Locator
 
+root_url = "https://www.parliament.nz"
+
 class Locators:
     def __init__(self, page: Page, locator: Locator):
 

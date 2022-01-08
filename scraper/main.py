@@ -10,11 +10,6 @@ import os
 from scraper_types import *
 from get_links import get_links_in_range
 
-
-def get_text(page: Page, link: str) -> Optional[ElementHandle]:
-    page.goto(link)
-    return page.query_selector(".body-text--hansard")
-
 def reload_checkpoint(checkpoint_file: Optional[str]) -> Optional[Checkpoint]:
     if checkpoint_file == None: return None
 

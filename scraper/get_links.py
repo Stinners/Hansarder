@@ -11,6 +11,7 @@ import pickle
 from scraper_types import *
 from utilities import Locators
 import debate_types
+from get_text import get_html
 
 T = TypeVar('T')
 
@@ -120,7 +121,7 @@ def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
             type = doctype,
             topic = topic,
             speaker = speaker,
-            text = None,
+            html = None,
         ))
 
     return speeches
@@ -147,12 +148,16 @@ def get_hansard_link(scraper: Scraper, elem: Locator) -> HansardLink:
     #debate_elems = unwrap(elem.query_selector_all(".hansard__sub-item"), "Could not find debates")
     #debates = [get_debate(elem) for elem in debate_elems]
 
-    return HansardLink(
+    link = HansardLink(
             title=title,
             dates=dates,
             debates=debates,
             url=url,
     )
+
+    get_html(scraper, link)
+
+    return link
 
 # This will need to handle parliments before this one 
 # I should also check this works on slow networks
