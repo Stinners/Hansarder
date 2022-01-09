@@ -1,5 +1,5 @@
-from scraper_types import *
-from utilities import Locators, root_url
+from .scraper_types import *
+from .utilities import Locators, root_url
 
 from typing import Iterator
 

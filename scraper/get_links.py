@@ -8,10 +8,10 @@ from time import sleep
 import logging
 import pickle
 
-from scraper_types import *
-from utilities import Locators
-import debate_types
-from get_text import get_html
+from .scraper_types import *
+from .utilities import Locators
+from .get_text import get_html
+from .debate_types import DebateTypes
 
 T = TypeVar('T')
 
@@ -45,10 +45,10 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
     raise Exception("This should be unreachable")
 
 def get_type(debate_title: str) -> Optional[str]:
-    for text, type in debate_types.exact_matches.items():
+    for text, type in DebateTypes.exact_matches.items():
         if debate_title == text: return type
 
-    for text, type in debate_types.contains.items():
+    for text, type in DebateTypes.contains.items():
         if text in debate_title: return type
 
     #for regex, type in debate_types.regex.items():

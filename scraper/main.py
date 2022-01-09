@@ -6,8 +6,15 @@ import logging
 import pickle
 import os
 
-from scraper_types import *
-from get_links import get_links_in_range
+# Boilerplate to make relative imports work when this is run as a script
+if __name__ == "__main__" and __package__ is None:
+    import sys
+    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(1, parent_dir)
+    __package__ = str("scraper")
+
+from .scraper_types import *
+from .get_links import get_links_in_range
 
 def reload_checkpoint(checkpoint_file: Optional[str]) -> Optional[Checkpoint]:
     if checkpoint_file == None: return None
@@ -52,7 +59,7 @@ def cleanup_checkpoint_file(scraper):
     except FileNotFoundError:
         pass
 
-def main(
+def scrape(
     stop: date,
     start: date = date.today(),
     seconds_delay: int = 5,
@@ -85,7 +92,7 @@ def main(
         browser.close()
 
 if __name__ == "__main__":
-    links = main(
+    links = scrape(
         stop = date.fromisoformat("2021-08-04"),
         log_level = logging.DEBUG,
     )
