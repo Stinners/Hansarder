@@ -60,8 +60,8 @@ def cleanup_checkpoint_file(scraper):
         pass
 
 def scrape(
-    stop: date,
-    start: date = date.today(),
+    stop: date | str,
+    start: date | str = date.today(),
     seconds_delay: int = 5,
     log_level: int = logging.INFO,
     log_file: Optional[str] = None,
