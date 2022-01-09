@@ -60,8 +60,8 @@ def cleanup_checkpoint_file(scraper):
         pass
 
 def scrape(
-    stop: date,
-    start: date = date.today(),
+    stop: date | str,
+    start: date | str = date.today(),
     seconds_delay: int = 5,
     log_level: int = logging.INFO,
     log_file: Optional[str] = None,
@@ -96,4 +96,7 @@ if __name__ == "__main__":
         stop = date.fromisoformat("2021-08-04"),
         log_level = logging.DEBUG,
     )
-    [link for link in links]
+    import itertools
+
+    for doc in itertools.islice(links, 21):
+        print(doc.title)

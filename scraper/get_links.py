@@ -57,6 +57,7 @@ def get_type(debate_title: str) -> Optional[str]:
     return None
 
 def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
+    expand_section(elem)
     sub_list = elem.locator(".hansard__sub-list")
     debates = []
     sections = Locators(scraper.page, sub_list.locator(".hansard__sub-item"))
@@ -80,6 +81,7 @@ def expand_section(section: Locator):
     is_expanded = toggle.get_attribute("aria-expanded") == "true"
     if not is_expanded:
         toggle.click()
+        section.element_handle().wait_for_selector('> .js-hansard__toggle[aria-expanded="true"]')
 
 # Do a better job of handling errors here
 def get_question(section: Locator) -> Tuple[str, str]:
@@ -145,10 +147,6 @@ def get_hansard_link(scraper: Scraper, elem: Locator) -> HansardLink:
     dates = get_dates_from_url(url)
 
     debates = get_debates(scraper, elem)
-
-    # Get each of the debate
-    #debate_elems = unwrap(elem.query_selector_all(".hansard__sub-item"), "Could not find debates")
-    #debates = [get_debate(elem) for elem in debate_elems]
 
     link = HansardLink(
             title=title,
