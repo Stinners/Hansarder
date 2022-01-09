@@ -3,7 +3,7 @@
 # it also handles managing the range of sessions to pull from 
 from playwright.sync_api import Locator
 
-from typing import TypeVar, List, Tuple
+from typing import TypeVar, List, Tuple, Iterator
 from time import sleep
 import logging
 import pickle
@@ -15,14 +15,15 @@ from get_text import get_html
 
 T = TypeVar('T')
 
-def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
+def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
     links = []
     link_in_range = False
+    started_reading = False
 
     # Goto the page to start 
     scraper.page.goto(scraper.start_url)
 
-    while link_in_range or links == []:
+    while link_in_range or not started_reading:
         logging.debug(f"Starting page: {scraper.page.url}")
         locator = scraper.page.locator(".hansard__list-item")
         for section in Locators(scraper.page, locator):
@@ -30,9 +31,10 @@ def get_links_in_range(scraper: Scraper) -> List[HansardLink]:
             link_in_range = scraper.date_range.contains_link(link)
             if link_in_range:
                 logging.debug(link.title)
-                links.append(link)
+                started_reading = True
+                yield link
                 write_checkpoint(scraper, link)
-            elif links != []:
+            elif started_reading:
                 return links
 
         goto_next_page(scraper)

@@ -1,7 +1,6 @@
 from playwright.sync_api import sync_playwright
-from playwright.sync_api import Page, ElementHandle
 
-from typing import Optional, List
+from typing import Optional, Iterator
 from datetime import date, timedelta
 import logging
 import pickle
@@ -60,7 +59,7 @@ def main(
     log_level: int = logging.INFO,
     log_file: Optional[str] = None,
     checkpoint_file: Optional[str] = None,
-) -> List[HansardLink]:
+) -> Iterator[HansardLink]:
 
     # Loading config
     logging.basicConfig(filename=log_file, level=log_level)
@@ -76,21 +75,18 @@ def main(
 
         # Running the actual Scraper 
         logging.info("Starting Scraper")
-        links = get_links_in_range(scraper)
+
+        for link in get_links_in_range(scraper):
+            yield link
 
         #cleaning up
         cleanup_checkpoint_file(scraper)
 
         browser.close()
 
-
-
-    return links
-
-
-
 if __name__ == "__main__":
-    main(
+    links = main(
         stop = date.fromisoformat("2021-08-04"),
         log_level = logging.DEBUG,
     )
+    [link for link in links]
