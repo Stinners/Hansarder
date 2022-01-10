@@ -4,6 +4,7 @@ from ...scraper.scraper_types import *
 import logging 
 import calendar
 import itertools
+import calendar
 from datetime import date, timedelta
 
 # Validate that the title of the session is formated as we expect 
@@ -33,8 +34,8 @@ def validate_document(doc: HansardLink):
 
 # This is mostly just testing that we don't throw an exception
 def test_get_one_document():
-    # Set a start time some arbitrary time in the past 
-    scraper = scrape(stop="2000-08-04")
+    # Set a log level some arbitrary time in the past 
+    scraper = scrape(stop="2021-08-04")
     document = next(scraper)
 
     validate_document(document)
@@ -51,4 +52,3 @@ def test_get_from_past():
     
     for document in documents:
         validate_document(document)
-
