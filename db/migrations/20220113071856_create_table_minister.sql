@@ -1,6 +1,6 @@
 -- migrate:up
-CREATE TABLE IF NOT EXISTS minister (
-    minister_id SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS member (
+    member_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     party_id INT,
 
@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS minister (
 )
 
 -- migrate:down
-DROP TABLE IF EXISTS miniser;
+DROP TABLE IF EXISTS member;
 

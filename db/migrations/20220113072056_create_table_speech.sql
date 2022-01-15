@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS speech (
 
     CONSTRAINT speaker_fk 
         FOREIGN KEY (speaker_id)
-        REFERENCES minister(minister_id)
+        REFERENCES member(member_id)
 )
 
 
