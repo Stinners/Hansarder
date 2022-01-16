@@ -69,6 +69,9 @@ def scrape() -> List[Member]:
 # The remainder of the file is creates an sql statement suitable for populating 
 # the memeber database
 
+# NOTE: Since this statement is created using raw string interpolation with external data 
+# it should be manually inspected before running
+
 def make_insert_tuple(mp: Member) -> str:
     # we need to make sure that single quotes in names are escaped
     escaped = mp.name.replace("'", "''")

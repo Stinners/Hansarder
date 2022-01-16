@@ -93,8 +93,28 @@ def get_question(section: Locator) -> Tuple[str, str]:
 
     return (speaker, topic)
 
+# This just gets the title of the speech, it should be used to get the 
+# name of the speaker in a regular speech
 def get_speech(section: Locator) -> str:
-    return section.locator("h5").inner_text().strip()
+    title = section.locator("h5").inner_text().strip()
+    parts = title.split(";")
+    # If there are multiple speakers we just get the first one 
+    return parts[1]
+
+# We won't wory about capitalization for now, we'll just 
+# let postgres do case insensitive comparisons when we 
+# insert
+def normalize_name(name: Optional[str]) -> Optional[str]:
+    if name == None:
+        return None
+
+    # We need to remove honorifics
+    # TODO possibly these should be stored in the member table
+    name = name.removeprefix("Hon ")
+    name = name.removeprefix("Dr ")
+
+    parts = name.split(", ")
+    return f"{parts[1]} {parts[0]}"
 
 # This function is called once for each debate 
 def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
@@ -118,6 +138,8 @@ def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
             pass 
         else:
             raise ScraperError(f"Unrecognized speech type {doctype}")
+
+        speaker = normalize_name(speaker)
 
         # At this stage we create the speech with an empty text field
         # this will be populated later

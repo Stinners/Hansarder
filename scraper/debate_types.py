@@ -15,9 +15,12 @@ class DebateTypes:
         "Second Reading": "Second Reading",
         "Third Reading": "Third Reading",
         "Urgent Debate": "Urgent Debate",
-        "Special Debate —": "Special Debate",
+        "Special Debate": "Special Debate",
         "Points of Order": "Points of Order",
     }
+
+def all_types():
+    return list(DebateTypes.exact_matches.keys()) + list(DebateTypes.contains.keys())
 
 
 # This currently isn't used 
