@@ -1,9 +1,9 @@
 WITH ins (title, debate_type, document_id) AS 
     ( VALUES 
-        (%s, %s, %s)
+        (%(title)s, %(debate_type)s, %(document_id)s)
     )
 INSERT INTO debate 
-    (title, debate_type, document)
+    (title, debate_type, debate_id)
 SELECT 
     ins.title, debate_type.debate_type_id, ins.document_id 
 FROM 

@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS speech (
     topic TEXT, 
     speaker_id INT,
     html TEXT,
+    type_id INT,
 
     CONSTRAINT speaker_fk 
         FOREIGN KEY (speaker_id)

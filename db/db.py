@@ -18,6 +18,7 @@ def get_connection_info() -> str:
 
 
 # Get a connetion pool
+# We should really create a single connection pool and only use that 
 def get_db() -> ConnectionPool:
     conninfo = get_connection_info()
     return ConnectionPool(conninfo)
