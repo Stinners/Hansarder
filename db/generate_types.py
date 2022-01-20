@@ -8,7 +8,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from scraper import debate_types
 
-deb_types = [f"('{debate_type}')" for debate_type in debate_types.all_types()]
+deb_types = [f"('{debate_type}')" for debate_type in debate_types.all_types()] + ["Unknown"]
 values_string = ",\n    ".join(deb_types)
 
 query = f"""

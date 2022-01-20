@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS debate (
     CONSTRAINT debate_type_fk
         FOREIGN KEY (debate_type)
         REFERENCES debate_type(debate_type_id),
-    CONSTRAINT document_type_fk 
+    CONSTRAINT document_fk 
         FOREIGN KEY (document)
         REFERENCES document(document_id)
 )

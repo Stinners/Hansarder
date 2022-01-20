@@ -1,8 +1,9 @@
-import psycopg
+from psycopg import Connection
 
 from datetime import date
 import random
 import string 
+from typing import Optional, List
 
 from ...scraper.scraper_types import HansardLink, SpeechLink, DebateLink, SessionDate
 from ...db.db import get_db
@@ -58,31 +59,93 @@ test_document = HansardLink(
 
 # TODO: setup a proper testing database 
 
+pool = get_db()
+
+def insert_document_head(doc: HansardLink, conn: Connection) -> Optional[int]:
+    with conn.cursor() as curr:
+        curr = conn.cursor()
+        curr.execute (
+            """
+            INSERT INTO document (title, url, start_date, continued_date) 
+            VALUES (%(title)s, %(url)s, %(start_date)s, %(continued_date)s)
+            RETURNING document_id;
+            """,
+            {
+                "title": doc.title,
+                "url": doc.url,
+                "start_date": doc.dates.actual_date,
+                "continued_date": doc.dates.continued_from,
+            }
+        )
+        fetch_id = curr.fetchone()
+        return fetch_id[0] if fetch_id is not None else None
+
+def insert_debate_head(debate: DebateLink, doc_key: int, conn: Connection) -> Optional[int]:
+    with conn.cursor() as curr:
+        curr = conn.cursor()
+        debate_values = {"title": debate.title, "debate_type": debate.type, "document_id": doc_key}
+        curr.execute(
+            """
+            INSERT INTO debate (title, document, debate_type)
+            VALUES (
+                %(title)s, 
+                %(document_id)s, 
+                (SELECT debate_type_id FROM debate_type WHERE debate_type.debate_type = %(debate_type)s)
+            )
+            RETURNING debate_id;
+            """,
+            debate_values
+        )
+        fetch_id = curr.fetchone()
+        return fetch_id[0] if fetch_id is not None else None
+
+def insert_speeches(speeches: List[SpeechLink], debate_key: int, conn: Connection):
+    with conn.cursor() as curr:
+        speech_mapping = [{
+            "topic": it.topic,
+            "speaker": it.speaker,
+            "html": it.html,
+            "speech_type": it.type,
+            "debate_id": debate_key,
+        } for it in speeches]
+
+        curr.executemany(
+            """
+            WITH ins (topic, speaker, html, speech_type, debate_id) AS
+            ( VALUES 
+                (%(topic)s, %(speaker)s, %(html)s, %(speech_type)s, %(debate_id)s)
+            )
+            INSERT INTO speech 
+                (topic, speaker_id, html, speech_type_id, debate_id)
+            SELECT 
+                ins.topic, member.member_id, ins.html, speech_type.speech_type_id, ins.debate_id
+            FROM 
+                ins 
+                LEFT JOIN member ON ins.speaker ILIKE member.name
+                LEFT JOIN speech_type ON ins.speech_type = speech_type.description;
+            """,
+            speech_mapping
+        )
+
+def insert_document(document):
+    with pool.getconn() as conn:
+        doc_key = insert_document_head(document, conn)
+
+        if doc_key == None:
+            raise Exception("Couldn't get key value from document")
+
+        for debate in test_debates:
+            debate_key = insert_debate_head(debate, doc_key, conn)
+
+            if debate_key == None:
+                raise Exception("Couldn't get key value from debate")
+
+            insert_speeches(debate.speeches, debate_key, conn)
+
 def test_insert_document():
-    db = get_db()
+    insert_document(test_document)
 
-    # I definitly need a better way of doing this
-    query = """
-        INSERT INTO document (title, url, start_date, continued_date) 
-        VALUES (%(title)s, %(url)s, %(start_date)s, %(continued_date)s)
-        RETURNING document_id;
-    """
 
-    with db.getconn() as conn, conn.cursor() as cur:
-        cur.execute (query, 
-        {
-            "title": test_document.title,
-            "url": test_document.url,
-            "start_date": test_document.dates.actual_date,
-            "continued_date": test_document.dates.continued_from,
-        })
-        result = cur.fetchone()
 
-        cur.execute("""SELECT document_id FROM document WHERE title = %s""", [test_document.title])
-        key = cur.fetchone()
 
-        if result != None and key != None:
-            assert(result[0] == key[0])
-        else:
-            raise Exception("Get nothing")
 

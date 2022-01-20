@@ -12,7 +12,8 @@ VALUES
     ('Third Reading'),
     ('Urgent Debate'),
     ('Special Debate'),
-    ('Points of Order');
+    ('Points of Order'),
+    ('Unknown');
 
 -- migrate:down
 DELETE FROM debate_type;
