@@ -97,24 +97,30 @@ def get_question(section: Locator) -> Tuple[str, str]:
 # name of the speaker in a regular speech
 def get_speech(section: Locator) -> str:
     title = section.locator("h5").inner_text().strip()
-    parts = title.split(";")
-    # If there are multiple speakers we just get the first one 
-    return parts[1]
 
-# We won't wory about capitalization for now, we'll just 
-# let postgres do case insensitive comparisons when we 
-# insert
+    # If there are multiple speakers we just get the first one 
+    parts = title.split(";")
+    return parts[0]
+
 def normalize_name(name: Optional[str]) -> Optional[str]:
     if name == None:
         return None
 
+    # We just make the name lowercase and then rely on Potgres's case insensitive 
+    # matching to find a connonical form later
+    name = name.lower()
+
     # We need to remove honorifics
     # TODO possibly these should be stored in the member table
-    name = name.removeprefix("Hon ")
-    name = name.removeprefix("Dr ")
+    name = name.removeprefix("hon ")
+    name = name.removeprefix("dr ")
 
     parts = name.split(", ")
-    return f"{parts[1]} {parts[0]}"
+    if len(parts) == 2:
+        # If the name is comma sepatrated then it's in lastname firstname format, so we flip them
+        name = f"{parts[1]} {parts[0]}"
+
+    return name
 
 # This function is called once for each debate 
 def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
@@ -148,6 +154,7 @@ def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
             topic = topic,
             speaker = speaker,
             html = None,
+            processed_text = "",
         ))
 
     return speeches

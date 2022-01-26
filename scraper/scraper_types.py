@@ -15,6 +15,7 @@ class SpeechLink:
     topic: Optional[str]
     speaker: Optional[str]
     html: Optional[str]
+    processed_text: Optional[str]
 
 @dataclass
 class DebateLink:
