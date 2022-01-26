@@ -125,9 +125,9 @@ WITH members_list (name, party) AS
     ('Megan Woods', 'Labour')
 )
 INSERT INTO member 
-    (name, party_id)
+    (name, party)
 SELECT 
-    members_list.name, party.party_id
+    members_list.name, party.id
 FROM 
     party JOIN members_list
     ON members_list.party = party.name;

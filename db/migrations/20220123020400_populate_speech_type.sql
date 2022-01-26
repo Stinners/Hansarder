@@ -7,5 +7,4 @@ VALUES
     ('Unknown');
 
 -- migrate:down
-
 DELETE FROM speech_type;

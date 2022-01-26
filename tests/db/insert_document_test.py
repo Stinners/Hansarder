@@ -56,6 +56,9 @@ test_document = HansardLink(
     url = "www.test_url.com2" + random_id,
 )
 
+def get_query(name):
+    with open("db/queries/" + name + ".sql", 'r') as f:
+        return f.read()
 
 # TODO: setup a proper testing database 
 
@@ -65,11 +68,7 @@ def insert_document_head(doc: HansardLink, conn: Connection) -> Optional[int]:
     with conn.cursor() as curr:
         curr = conn.cursor()
         curr.execute (
-            """
-            INSERT INTO document (title, url, start_date, continued_date) 
-            VALUES (%(title)s, %(url)s, %(start_date)s, %(continued_date)s)
-            RETURNING document_id;
-            """,
+            get_query("insert_document"),
             {
                 "title": doc.title,
                 "url": doc.url,
@@ -85,15 +84,7 @@ def insert_debate_head(debate: DebateLink, doc_key: int, conn: Connection) -> Op
         curr = conn.cursor()
         debate_values = {"title": debate.title, "debate_type": debate.type, "document_id": doc_key}
         curr.execute(
-            """
-            INSERT INTO debate (title, document, debate_type)
-            VALUES (
-                %(title)s, 
-                %(document_id)s, 
-                (SELECT debate_type_id FROM debate_type WHERE debate_type.debate_type = %(debate_type)s)
-            )
-            RETURNING debate_id;
-            """,
+            get_query("insert_debate"),
             debate_values
         )
         fetch_id = curr.fetchone()
@@ -103,27 +94,14 @@ def insert_speeches(speeches: List[SpeechLink], debate_key: int, conn: Connectio
     with conn.cursor() as curr:
         speech_mapping = [{
             "topic": it.topic,
-            "speaker": it.speaker,
+            "member": it.speaker,
             "html": it.html,
             "speech_type": it.type,
             "debate_id": debate_key,
         } for it in speeches]
 
         curr.executemany(
-            """
-            WITH ins (topic, speaker, html, speech_type, debate_id) AS
-            ( VALUES 
-                (%(topic)s, %(speaker)s, %(html)s, %(speech_type)s, %(debate_id)s)
-            )
-            INSERT INTO speech 
-                (topic, speaker_id, html, speech_type_id, debate_id)
-            SELECT 
-                ins.topic, member.member_id, ins.html, speech_type.speech_type_id, ins.debate_id
-            FROM 
-                ins 
-                LEFT JOIN member ON ins.speaker ILIKE member.name
-                LEFT JOIN speech_type ON ins.speech_type = speech_type.description;
-            """,
+            get_query("insert_speech"),
             speech_mapping
         )
 
@@ -136,16 +114,11 @@ def insert_document(document):
 
         for debate in test_debates:
             debate_key = insert_debate_head(debate, doc_key, conn)
-
+        
             if debate_key == None:
                 raise Exception("Couldn't get key value from debate")
-
+       
             insert_speeches(debate.speeches, debate_key, conn)
 
 def test_insert_document():
     insert_document(test_document)
-
-
-
-
-

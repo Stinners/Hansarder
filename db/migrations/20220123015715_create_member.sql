@@ -1,12 +1,12 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS member (
-    member_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    party_id INT,
+    party INT,
 
     CONSTRAINT party_fk 
-        FOREIGN KEY (party_id)
-        REFERENCES party(party_id)
+        FOREIGN KEY (party)
+        REFERENCES party(id)
 )
 
 -- migrate:down

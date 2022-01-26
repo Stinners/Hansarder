@@ -1,5 +1,5 @@
 -- migrate:up
-INSERT INTO debate_type (debate_type)
+INSERT INTO debate_type (description)
 VALUES 
     ('Karakia/Prayers'),
     ('Oral Questions — Questions to Ministers'),

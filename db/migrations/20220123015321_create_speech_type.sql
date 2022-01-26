@@ -1,6 +1,6 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS speech_type (
-    speech_type_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     description TEXT UNIQUE NOT NULL
 )
 

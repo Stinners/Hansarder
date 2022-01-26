@@ -9,4 +9,3 @@ INSERT INTO party (name)
 
 -- migrate:down
 DELETE FROM party;
-

@@ -1,12 +1,12 @@
-WITH ins AS (topic, speaker, html, debate_type, debate_id) 
+WITH ins (topic, member, html, speech_type, debate_id) AS
 ( VALUES 
-    (%(topic)s, %(speaker)s, %(html)s, %(debate_type), %(debate_id)s)
+    (%(topic)s, %(member)s, %(html)s, %(speech_type)s, %(debate_id)s)
 )
 INSERT INTO speech 
-    (topic, member_id, html, debate_type_id, debate_id)
+    (topic, member, html, speech_type, debate)
 SELECT 
-    ins.topic, member.member_id, ins.html, debate_type.debate_type_id, ins.debate_id
+    ins.topic, member.id, ins.html, speech_type.id, ins.debate_id
 FROM 
     ins 
-    LEFT JOIN member ON ins.speaker ILIKE member.member_id; 
-    LEFT JOIN debate_type ON ins.debate_type = debate_type.description;
+    LEFT JOIN member ON ins.member ILIKE member.name
+    LEFT JOIN speech_type ON ins.speech_type = speech_type.description;
