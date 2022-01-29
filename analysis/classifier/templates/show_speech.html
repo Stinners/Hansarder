@@ -1,34 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-  <main>
-    <div class="speech-selector">
-        <form>
-          <label for="speech-selector">
-              <span>Speech Name</span>
-              <input type="text" id="speech-selector" name="speech-name" placeholder="Name">
-          </label>
-          <input type="submit" value="Get Speech">
+  <main class="classify-speech">
+
+    <div class="topics-container">
+        <form class="topics" action="/classify_speech" method="post">
+            <h2>Topics</h2>
+            <div class="topics__grid">
+                {% for topic in topics %}
+                    <label for="topic-{{ topic }}" class="topic__label">
+                        <input type="checkbox" id="topic-{{ topic }}" name={{ topic }}>
+                        <span>{{ topic }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="speech-id" name="speech-id" value={{ speech_id }}>
+            <input type="submit" role="button" value="Classify">
         </form>
-        <a id="random-speech-button" role="button" href="/">Random Speech</a>
     </div>
 
-    <div class="speech-wraper">
+    <div class="speech-container">
+        <div class="speech-selector">
+            <form>
+              <label for="speech-selector">
+                  <span>Speech Name</span>
+                  <input type="text" id="speech-selector" name="speech-name" placeholder="Name">
+              </label>
+              <input type="submit" value="Get Speech">
+            </form>
+            <a id="random-speech-button" role="button" href="/">Random Speech</a>
+        </div>
       {{ speech_html|safe }}
     </div>
-
-    <form class="topics" action="/classify_speech" method="post">
-        <h2>Topics</h2>
-        <div class="topics__grid">
-            {% for topic in topics %}
-                <label for="topic-{{ topic }}">
-                    <input type="checkbox" id="topic-{{ topic }}" name={{ topic }}>
-                    <span>{{ topic }}</span>
-                </label>
-            {% endfor %}
-        </div>
-        <input type="hidden" id="speech-id" name="speech-id" value={{ speech_id }}>
-        <input type="submit" role="button" value="Classify">
-    </form>
-
   </main>
 {% endblock %}

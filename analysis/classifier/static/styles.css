@@ -1,14 +1,22 @@
-.content-wrapper {
-    width: 1080px;
-    margin: auto;
+.classify-speech {
+    display: flex;
+    max-width: 1400px;
+    justify-content: space-between;
 }
 
-.topics__grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto;
-    justify-items: start;
-    grid-gap: 1em;
-    margin-bottom: 2em;
+.topic-container {
+    flex-basis: 25%;
+    font-size: 0.8em;
+    position: sticky;
+    top: 0px;
 }
+
+.topic__label {
+    font-size: 0.8em;
+}
+
+.speech-container {
+    flex-basis: 70%;
+}
+
 

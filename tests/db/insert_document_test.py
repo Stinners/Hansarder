@@ -84,7 +84,6 @@ def insert_document_head(doc: HansardLink, conn: Connection) -> Optional[int]:
 
 def insert_debate_head(debate: DebateLink, doc_key: int, conn: Connection) -> Optional[int]:
     with conn.cursor() as curr:
-        curr = conn.cursor()
         debate_values = {"title": debate.title, "debate_type": debate.type, "document_id": doc_key}
         curr.execute(
             get_query("insert_debate"),

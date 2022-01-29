@@ -11,7 +11,7 @@ if __name__ == "__main__" and __package__ is None:
     import sys
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(1, parent_dir)
-    __package__ = str("scraper")
+    __package__ = "scraper"
 
 from .scraper_types import *
 from .get_links import get_links_in_range
