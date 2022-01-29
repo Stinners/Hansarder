@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS speech (
     debate INT,
     member INT,
     speech_type INT,
+    position INT NOT NULL,
 
     CONSTRAINT member_fk 
         FOREIGN KEY (member)

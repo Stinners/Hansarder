@@ -1,0 +1,14 @@
+.content-wrapper {
+    width: 1080px;
+    margin: auto;
+}
+
+.topics__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    justify-items: start;
+    grid-gap: 1em;
+    margin-bottom: 2em;
+}
+

@@ -14,18 +14,21 @@ test_speechs = [
         topic = "Test topic",
         speaker = "sIMon o'connor",
         html = "<h1>Hello World</h1>",
+        processed_text = None,
     ),
     SpeechLink(
         type = "Question",
         topic = "Another Test topic",
         speaker = "Chlöe SwarbRICk",
-        html = "<h1>Hello World2</h1>"
+        html = "<h1>Hello World2</h1>",
+        processed_text = None,
     ),
     SpeechLink(
         type = "Unknown",
         topic = None,
         speaker = None,
-        html = "<h1>Hello World3</h1>"
+        html = "<h1>Hello World3</h1>",
+        processed_text = None,
     )
 ]
 
@@ -98,7 +101,8 @@ def insert_speeches(speeches: List[SpeechLink], debate_key: int, conn: Connectio
             "html": it.html,
             "speech_type": it.type,
             "debate_id": debate_key,
-        } for it in speeches]
+            "position": i,
+        } for (i, it) in enumerate(speeches)]
 
         curr.executemany(
             get_query("insert_speech"),

@@ -10,7 +10,7 @@ class DebateTypes:
     }
 
     contains: dict[str, str] = {
-        "In Committee": "Committee",
+        "In Committee": "— In Committee—",
         "First Reading": "First Reading",
         "Second Reading": "Second Reading",
         "Third Reading": "Third Reading",
