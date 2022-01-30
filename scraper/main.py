@@ -5,6 +5,7 @@ from datetime import date, timedelta
 import logging
 import pickle
 import os
+import itertools
 
 # Boilerplate to make relative imports work when this is run as a script
 if __name__ == "__main__" and __package__ is None:
@@ -93,10 +94,9 @@ def scrape(
 
 if __name__ == "__main__":
     links = scrape(
-        stop = date.fromisoformat("2021-08-04"),
+        stop = date.fromisoformat("2022-01-26"),
         log_level = logging.DEBUG,
     )
-    import itertools
 
-    for doc in itertools.islice(links, 21):
-        print(doc.title)
+
+

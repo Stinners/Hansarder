@@ -6,7 +6,15 @@ import sys
 
 def get_connection_info() -> str:
     load_dotenv()
-    dbmate_connection_string = os.getenv("DATABASE_URL")
+
+    env = os.getenv("ENV")
+    if env == "PROD":
+        dbmate_connection_string = os.getenv("PROD_DATABASE_URL")
+    elif env == "TEST":
+        dbmate_connection_string = os.getenv("TEST_DATABASE_URL")
+    else:
+        dbmate_connection_string = os.getenv("DATABASE_URL")
+
     if dbmate_connection_string == None:
         print("Please set the \"DATABASE_URL\" environment variable")
         sys.exit(1)

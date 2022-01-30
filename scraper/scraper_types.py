@@ -61,12 +61,6 @@ def parse_date(datestring: date | str) -> date:
         except:
             raise ValueError(f"Datesting: {datestring} must be in ISO format (YYYY-MM_DD)")
 
-# TODO this call represents th structured information aquired from 
-# parsing a single document 
-@dataclass 
-class HansardDocument:
-    pass
-
 class ScraperError(Exception):
     pass
 
