@@ -14,7 +14,7 @@ def validate_title(title: str):
     # The first part should be a week day 
     assert(parts[0].strip(",") in list(calendar.day_name)) #["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
 
-    # The first part should be a Month 
+    # The third part should be a Month 
     assert(parts[2].strip(",") in list(calendar.month_name))
 
     # Second and fourth parts should be numbers 
@@ -40,6 +40,8 @@ def test_get_one_document():
 
     validate_document(document)
 
+# TODO Make sure thsi isn't actually reading everything from the last year 
+# Alternativly this might be failing to get the next page
 def test_get_from_past():
     scraper = scrape(
         stop = date.today() - timedelta(days=365),

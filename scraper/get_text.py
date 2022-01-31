@@ -2,6 +2,7 @@ from .scraper_types import *
 from .utilities import Locators, root_url
 
 from typing import Iterator
+import logging 
 
 # this requires nltk's punkt models to be installed
 from nltk.tokenize import word_tokenize
@@ -34,6 +35,7 @@ def process_text(text: str) -> str:
     return processed_text
 
 def get_html(scraper: Scraper, link: HansardLink):
+    logging.debug(f"Visiting page for: {link.title}")
     page = scraper.browser.new_page()
     page.goto(root_url + link.url)
 
@@ -47,6 +49,5 @@ def get_html(scraper: Scraper, link: HansardLink):
         section = speach_text.locator(".body-text")
         speach_link.html = section.inner_html()
         speach_link.processed_text = process_text(section.inner_text())
-        import pdb; pdb.set_trace()
 
     page.close()

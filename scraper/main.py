@@ -64,16 +64,15 @@ def scrape(
     stop: date | str,
     start: date | str = date.today(),
     seconds_delay: int = 5,
-    log_level: int = logging.INFO,
+    log_level: int = logging.DEBUG,
     log_file: Optional[str] = None,
     checkpoint_file: Optional[str] = None,
+    start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=-1&criteria.Timeframe=&criteria.DateFrom=&criteria.DateTo=&parliamentStartDate=&parliamentEndDate=",
 ) -> Iterator[HansardLink]:
 
     # Loading config
     logging.basicConfig(filename=log_file, level=log_level)
 
-    # We use this as the start url so we can get all past parliaments, not just the currently sitting one
-    start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=-1&criteria.Timeframe=&criteria.DateFrom=&criteria.DateTo=&parliamentStartDate=&parliamentEndDate="
     date_range = DateRange(start, stop)
 
     # Starting a browser and setting up the Scraper
@@ -91,12 +90,3 @@ def scrape(
         cleanup_checkpoint_file(scraper)
 
         browser.close()
-
-if __name__ == "__main__":
-    links = scrape(
-        stop = date.fromisoformat("2022-01-26"),
-        log_level = logging.DEBUG,
-    )
-
-
-

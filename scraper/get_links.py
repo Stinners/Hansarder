@@ -17,32 +17,40 @@ T = TypeVar('T')
 
 def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
     links = []
-    link_in_range = False
-    started_reading = False
 
     # Goto the page to start 
     scraper.page.goto(scraper.start_url)
 
-    while link_in_range or not started_reading:
+    while True:
         logging.debug(f"Starting page: {scraper.page.url}")
         locator = scraper.page.locator(".hansard__list-item")
-        for section in Locators(scraper.page, locator):
-            link = get_hansard_link(scraper, section)
-            link_in_range = scraper.date_range.contains_link(link)
-            if link_in_range:
-                logging.debug(link.title)
-                started_reading = True
-                yield link
-                write_checkpoint(scraper, link)
-            elif started_reading:
+        days_on_page = Locators(scraper.page, locator)
+
+        for day_section in days_on_page:
+            logging.debug("Reading New Day")
+
+            # Get the information readily avilible on this page 
+            day = get_hansard_link(day_section)
+
+            # Only do further processing if the link is in out date range
+            if scraper.date_range.contains_link(day):
+                logging.info(f"Getting Data for: {day.title}")
+                day.debates = get_debates(scraper, day_section)
+                get_html(scraper, day)
+                yield day
+                write_checkpoint(scraper, day)
+
+            # If we'er out of the range then we can return 
+            elif scraper.date_range.done(day.dates):
+                logging.info(f"Stopped before: {day.title}")
                 return links
+            
+            else:
+                logging.info(f"Skipping: {day.title}")
 
         goto_next_page(scraper)
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
-
-    # this should never actually be reached
-    raise Exception("This should be unreachable")
 
 def get_type(debate_title: str) -> Optional[str]:
     for text, type in DebateTypes.exact_matches.items():
@@ -57,6 +65,7 @@ def get_type(debate_title: str) -> Optional[str]:
     return None
 
 def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
+    logging.debug("Expanding Day")
     expand_section(elem)
     sub_list = elem.locator(".hansard__sub-list")
     debates = []
@@ -123,23 +132,24 @@ def normalize_name(name: Optional[str]) -> Optional[str]:
     return name
 
 # This function is called once for each debate 
-def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
+def get_speeches(scraper: Scraper, debate_selector: Locator) -> List[SpeechLink]:
     # First we need to expand the speeches 
-    expand_section(elem)
-    elem.element_handle().wait_for_selector(".hansard__child-list")
+    logging.debug("Expanding Debate")
+    expand_section(debate_selector)
+    debate_selector.element_handle().wait_for_selector(".hansard__child-list")
 
     speeches = []
-    locators = elem.locator(".hansard__child-list .hansard__content")
-    for section in Locators(scraper.page, locators):
+    speech_selector = debate_selector.locator(".hansard__child-list .hansard__content")
+    for speech in Locators(scraper.page, speech_selector):
         speaker = None 
         topic = None
 
         # We need to identify if we have a speech or a question
-        doctype = section.locator(".hansard__doctype").inner_text()
+        doctype = speech.locator(".hansard__doctype").inner_text()
         if doctype == "Question":
-            speaker, topic = get_question(section)
+            speaker, topic = get_question(speech)
         elif doctype == "Speech":
-            speaker = get_speech(section)
+            speaker = get_speech(speech)
         elif doctype == "Vote":
             pass 
         else:
@@ -159,13 +169,9 @@ def get_speeches(scraper: Scraper, elem: Locator) -> List[SpeechLink]:
 
     return speeches
 
-# Takes the element corresponding to a single day of the Hansard and extracts 
-# this into a HansardLink class 
+# This only get the information availible on the main page, it doesn't make any additional HTTP requests
 # This takes a .hansard_list__item locator
-def get_hansard_link(scraper: Scraper, elem: Locator) -> HansardLink:
-
-    # Expand the Debates
-    expand_section(elem)
+def get_hansard_link(elem: Locator) -> HansardLink:
 
     #Get the href for the link
     anchor = unwrap(elem.locator(".hansard__content h2 a"), "Could not find anchor element")
@@ -175,16 +181,16 @@ def get_hansard_link(scraper: Scraper, elem: Locator) -> HansardLink:
 
     dates = get_dates_from_url(url)
 
-    debates = get_debates(scraper, elem)
+    #debates = get_debates(scraper, elem)
 
     link = HansardLink(
             title=title,
             dates=dates,
-            debates=debates,
+            debates=[],
             url=url,
     )
 
-    get_html(scraper, link)
+    #get_html(scraper, link)
 
     return link
 

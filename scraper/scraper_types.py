@@ -35,6 +35,7 @@ class HansardLink:
     debates: list[DebateLink]
     url: str
 
+# We always read backwards in time, from the most recent date ot the oldest
 class DateRange:
     def __init__(self, start: date | str, stop: date | str):
         self.start = parse_date(start)
@@ -49,6 +50,10 @@ class DateRange:
 
     def contains_link(self, link: HansardLink) -> bool:
         return self.in_range(link.dates.continued_from)
+
+    # We're done if the data is before the stop date
+    def done(self, session: SessionDate) -> bool:
+        return self.stop > session.continued_from
 
         
 
