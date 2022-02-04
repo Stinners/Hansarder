@@ -80,9 +80,11 @@ def scrape(
         browser = p.firefox.launch()
         scraper = init_scraper(browser, date_range, seconds_delay, checkpoint_file, start_url)
 
-        # Running the actual Scraper 
         logging.info("Starting Scraper")
+        logging.info(f"Starting at URL: {start_url}")
+        logging.info(f"Running from {start} to {stop}")
 
+        # Running the actual Scraper 
         for link in get_links_in_range(scraper):
             yield link
 
@@ -90,3 +92,6 @@ def scrape(
         cleanup_checkpoint_file(scraper)
 
         browser.close()
+
+
+

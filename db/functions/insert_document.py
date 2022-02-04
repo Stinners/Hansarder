@@ -1,4 +1,4 @@
-from psycopg import Connection, Cursor
+from psycopg import Cursor
 
 from typing import Optional, List
 
@@ -45,8 +45,6 @@ def insert_speeches(speeches: List[SpeechLink], debate_key: int, cur: Cursor):
         get_query("insert_speech"),
         speech_mapping
     )
-
-
 
 def insert_document(conn, document):
     with conn.cursor() as cur:

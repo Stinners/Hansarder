@@ -27,7 +27,7 @@ test_speechs = [
     SpeechLink(
         type = "Question",
         topic = "Another Test topic",
-        speaker = "Chlöe SwarbRICk",
+        speaker = "Chlöe swarbRICk",
         html = "<h1>Hello World2</h1>",
         processed_text = None,
     ),
