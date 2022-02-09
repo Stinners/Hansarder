@@ -8,9 +8,9 @@ import string
 import os
 import subprocess
 
-from ...scraper.scraper_types import HansardLink, SpeechLink, DebateLink, SessionDate
-from ...db.db import get_db
-from ...db.functions.insert_document import insert_document
+from ...libhansard.scraper.scraper_types import HansardLink, SpeechLink, DebateLink, SessionDate
+from ...libhansard.db.db import get_db
+from ...libhansard.db.functions.insert_document import insert_document
 
 ###################################################################
 #                          Data                                   #
@@ -95,9 +95,13 @@ def test_insert_document():
     pool = get_db()
 
     with pool.getconn() as conn:
+
+        # Arrange 
         insert_document(conn, test_document)
     
         with conn.cursor() as cur:
+
+            # Act 
             cur.execute("""SELECT * FROM document""")
             doc_id, title, url, actual_date, continued_date = cur.fetchone()   # type: ignore 
 
@@ -110,6 +114,8 @@ def test_insert_document():
                 LEFT JOIN party p ON m.party = p.id;
             """)
             speeches = cur.fetchall()
+
+            # Assert 
 
             # Document Asserts 
             assert url == test_document.url

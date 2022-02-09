@@ -2,17 +2,22 @@
 
 import os 
 import logging
+import pathlib
+import sys
+
+sys.path.insert(1, str(pathlib.Path(__file__).parent.parent))
 
 # Boilerplate to make relative imports work when this is run as a script
-if __name__ == "__main__" and __package__ is None:
-    import sys
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(1, parent_dir)
-    __package__ = "analyis"
+#if __name__ == "__main__" and __package__ is None:
+#    import sys
+#    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#    sys.path.insert(1, parent_dir)
+#    __package__ = "analyis"
 
-from db.db import get_db
-from db.functions.insert_document import insert_document
-from scraper.main import scrape
+from libhansard.db.db import get_db
+from libhansard.db.functions.insert_document import insert_document
+from libhansard.scraper.main import scrape
+import pdb; pdb.set_trace()
 
 log_file = "get_data.logs"
 

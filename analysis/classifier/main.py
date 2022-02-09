@@ -1,18 +1,15 @@
 
-# Boilerplate to make relative imports work when this is run as a script
-if __name__ == "main" and __package__ == '':
-    import sys, os
-    grandparent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.insert(1, grandparent_dir)
-    __package__ = "classifier"
-
+from pathlib import Path
+import sys
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from db.db import get_db
+sys.path.insert(1, str(Path(__file__).parent.parent.parent))
+
+from libhansard.db.db import get_db
 
 
 #######################################################

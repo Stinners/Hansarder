@@ -1,13 +1,23 @@
 from psycopg import Cursor
 
 from typing import Optional, List
+import pathlib
+import sys
 
 from ...scraper.scraper_types import HansardLink, SpeechLink, DebateLink
 
+QUERY_DIRECTORY = pathlib.Path(__file__).parent.parent / "queries" 
+
 # TODO come up with a better way to do this
 def get_query(name):
-    with open("db/queries/" + name + ".sql", 'r') as f:
-        return f.read()
+    filepath = QUERY_DIRECTORY / (name + ".sql")
+    with open(filepath, 'r') as f:
+        try:
+            return f.read()
+        except:
+            print(f"Couldn't read file #{filepath}")
+            sys.exit()
+
 
 def insert_document_head(doc: HansardLink, cur: Cursor) -> Optional[int]:
     cur.execute (

@@ -1,5 +1,5 @@
-from ...scraper.main import scrape
-from ...scraper.scraper_types import *
+from ...libhansard.scraper.main import scrape
+from ...libhansard.scraper.scraper_types import *
 
 import logging
 import html.parser
