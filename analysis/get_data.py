@@ -9,13 +9,10 @@ if __name__ == "__main__" and __package__ is None:
     parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.insert(1, parent_dir)
     __package__ = "analyis"
-    import pdb; pdb.set_trace()
 
 from db.db import get_db
 from db.functions.insert_document import insert_document
 from scraper.main import scrape
-
-import pdb; pdb.set_trace()
 
 log_file = "get_data.logs"
 
