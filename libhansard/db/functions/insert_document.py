@@ -58,10 +58,10 @@ def insert_speeches(speeches: List[SpeechLink], debate_key: int, cur: Cursor):
 
 def insert_document(conn, document):
     with conn.cursor() as cur:
-        try:
-            # This will throw and exception if try to insert a document that's alread in the database
-            doc_key = insert_document_head(document, cur)
+        # This will throw and exception if try to insert a document that's alread in the database
         #TODO find the appropriate exception class here
+        try:
+            doc_key = insert_document_head(document, cur)
         except:
             return 
 

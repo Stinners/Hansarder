@@ -10,21 +10,22 @@ class DebateTypes:
     }
 
     contains: dict[str, str] = {
-        "In Committee": "— In Committee—",
+        "— In Committee—": "In Committee",
         "First Reading": "First Reading",
         "Second Reading": "Second Reading",
-        "Third Reading": "Third Reading",
+        "Third Reading": "Third Reading", 
         "Urgent Debate": "Urgent Debate",
         "Special Debate": "Special Debate",
         "Points of Order": "Points of Order",
     }
 
+    # This currently isn't used 
+    #__regexs: dict[str, str] = {}
+    ## Compile all the regexes just once
+    #regex: dict[Pattern, str] = {re.compile(key): value for key, value in __regexs.items()}
+
 def all_types():
-    return list(DebateTypes.exact_matches.keys()) + list(DebateTypes.contains.keys())
+    return list(DebateTypes.exact_matches.values()) + list(DebateTypes.contains.values()) + ["Unknown"]
 
 
-# This currently isn't used 
-#__regexs: dict[str, str] = {}
-
-#regex: dict[Pattern, str] = {re.compile(key): value for key, value in __regexs.items()}
 

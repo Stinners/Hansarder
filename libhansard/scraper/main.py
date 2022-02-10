@@ -5,7 +5,7 @@ from datetime import date, timedelta
 import logging
 import pickle
 import os
-import itertools
+import sys
 
 # Boilerplate to make relative imports work when this is run as a script
 if __name__ == "__main__" and __package__ is None:
@@ -52,6 +52,12 @@ def init_scraper(
         checkpoint_file = checkpoint_file,
     )
 
+def get_logging_handlers(log_file: Optional[str], log_to_terminal: bool): 
+    handlers = []
+    if log_file != None: handlers.append(logging.FileHandler(log_file))
+    if log_to_terminal: handlers.append(logging.StreamHandler(sys.stdout))
+    return handlers
+
 def cleanup_checkpoint_file(scraper):
     if scraper.checkpoint_file == None: return 
     try:
@@ -66,12 +72,14 @@ def scrape(
     seconds_delay: int = 5,
     log_level: int = logging.DEBUG,
     log_file: Optional[str] = None,
+    log_to_terminal = True,
     checkpoint_file: Optional[str] = None,
     start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=-1&criteria.Timeframe=&criteria.DateFrom=&criteria.DateTo=&parliamentStartDate=&parliamentEndDate=",
 ) -> Iterator[HansardLink]:
 
     # Loading config
-    logging.basicConfig(filename=log_file, level=log_level)
+    log_handlers = get_logging_handlers(log_file, log_to_terminal)
+    logging.basicConfig(level=log_level, handlers=log_handlers)
 
     date_range = DateRange(start, stop)
 

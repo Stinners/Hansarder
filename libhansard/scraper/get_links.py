@@ -61,13 +61,13 @@ def get_type(debate_title: str) -> Optional[str]:
     for text, type in DebateTypes.exact_matches.items():
         if debate_title == text: return type
 
-    for text, type in DebateTypes.contains.items():
-        if text in debate_title: return type
+    for to_match, debate_type in DebateTypes.contains.items():
+        if to_match in debate_title: return debate_type
 
     #for regex, type in debate_types.regex.items():
     #    if regex.search(debate_title): return type 
 
-    return None
+    return "Unknown"
 
 def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
     logging.debug("Expanding Day")

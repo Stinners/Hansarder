@@ -1,9 +1,9 @@
 -- migrate:up
 INSERT INTO debate_type (description)
 VALUES 
-    ('Karakia/Prayers'),
-    ('Oral Questions — Questions to Ministers'),
-    ('Petitions, Papers, Select Committee Reports, and Introduction of Bills'),
+    ('Karakia'),
+    ('Questions'),
+    ('Preamble'),
     ('Business Statement'),
     ('General Debate'),
     ('In Committee'),
