@@ -32,7 +32,7 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
             # Get the information readily avilible on this page 
             day = get_hansard_link(day_section)
 
-            # Only do further processing if the link is in out date range
+            # Only do further processing if the link is in our date range
             if scraper.date_range.contains_link(day):
                 logging.info(f"Getting Data for: {day.title}")
                 day.debates = get_debates(scraper, day_section)
@@ -48,7 +48,12 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
             else:
                 logging.info(f"Skipping: {day.title}")
 
-        goto_next_page(scraper)
+        try:
+            goto_next_page(scraper)
+        except ScraperError: 
+            logging.info("Couldn't find next page button")
+            break
+
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
 
@@ -126,7 +131,7 @@ def normalize_name(name: Optional[str]) -> Optional[str]:
 
     parts = name.split(", ")
     if len(parts) == 2:
-        # If the name is comma sepatrated then it's in lastname firstname format, so we flip them
+        # If the name is comma sepatrated then it's in lastname, firstname format, so we flip them
         name = f"{parts[1]} {parts[0]}"
 
     return name
@@ -134,7 +139,7 @@ def normalize_name(name: Optional[str]) -> Optional[str]:
 # This function is called once for each debate 
 def get_speeches(scraper: Scraper, debate_selector: Locator) -> List[SpeechLink]:
     # First we need to expand the speeches 
-    logging.debug("Expanding Debate")
+    logging.debug(f"Expanding Debate: {debate_selector.locator('h3').inner_text()}")
     expand_section(debate_selector)
     debate_selector.element_handle().wait_for_selector(".hansard__child-list")
 
@@ -180,8 +185,6 @@ def get_hansard_link(elem: Locator) -> HansardLink:
     title = anchor.inner_text().strip()
 
     dates = get_dates_from_url(url)
-
-    #debates = get_debates(scraper, elem)
 
     link = HansardLink(
             title=title,

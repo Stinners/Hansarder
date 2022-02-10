@@ -1,5 +1,14 @@
-from ...libhansard.scraper.main import scrape
-from ...libhansard.scraper.scraper_types import *
+
+import sys
+from pathlib import Path
+
+sys.path.insert(1, str(Path(__file__).parent.parent.parent))
+
+
+#from ...libhansard.scraper.main import scrape
+#from ...libhansard.scraper.scraper_types import *
+from libhansard.scraper.main import scrape
+from libhansard.scraper.scraper_types import *
 
 import logging 
 import calendar
@@ -40,12 +49,10 @@ def test_get_one_document():
 
     validate_document(document)
 
-# TODO Make sure thsi isn't actually reading everything from the last year 
-# Alternativly this might be failing to get the next page
-def test_get_from_past():
+# This takes a very long time, on order of 10 minutes
+def test_get_from_over_page():
     scraper = scrape(
         stop = date.today() - timedelta(days=365),
-        log_level = logging.DEBUG,
     )
 
     # Taking 21 documents ensures that we have to 
@@ -54,3 +61,16 @@ def test_get_from_past():
     
     for document in documents:
         validate_document(document)
+
+def test_handle_no_next_page():
+    scraper = scrape(
+        start = "2022-01-01",
+        stop = "2021-08-04",
+        start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=53&criteria.Timeframe=range&criteria.DateFrom=2022-01-01&criteria.DateTo=2022-02-11&parliamentStartDate=2020-11-24&parliamentEndDate=",
+    )
+
+    # We just want to force the iterator to evaluate and 
+    # ensure it doesn't throw exceptions
+    [doc for doc in scraper]
+
+
