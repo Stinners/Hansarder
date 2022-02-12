@@ -7,6 +7,7 @@ from typing import TypeVar, List, Tuple, Iterator
 from time import sleep
 import logging
 import pickle
+import os
 
 from .scraper_types import *
 from .utilities import Locators
@@ -14,6 +15,14 @@ from .get_text import get_html
 from .debate_types import DebateTypes
 
 T = TypeVar('T')
+
+def cleanup_checkpoint_file(scraper):
+    if scraper.checkpoint_file == None: return 
+    try:
+        os.remove(scraper.checkpoint_file)
+        logging.info("Removing checkpoint file")
+    except FileNotFoundError:
+        pass
 
 def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
     links = []
@@ -37,13 +46,13 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
                 logging.info(f"Getting Data for: {day.title}")
                 day.debates = get_debates(scraper, day_section)
                 get_html(scraper, day)
-                yield day
                 write_checkpoint(scraper, day)
+                yield day
 
-            # If we'er out of the range then we can return 
+            # If we're out of the range then we can return 
             elif scraper.date_range.done(day.dates):
                 logging.info(f"Stopped before: {day.title}")
-                return links
+                break
             
             else:
                 logging.info(f"Skipping: {day.title}")
@@ -56,6 +65,10 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
 
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
+
+    # We should cleanup the checkpoint file iff we reached the end 
+    # of the documents to scrape
+    cleanup_checkpoint_file(scraper)
 
 def get_type(debate_title: str) -> Optional[str]:
     for text, type in DebateTypes.exact_matches.items():

@@ -96,9 +96,6 @@ def scrape(
         for link in get_links_in_range(scraper):
             yield link
 
-        #cleaning up
-        cleanup_checkpoint_file(scraper)
-
         browser.close()
 
 
