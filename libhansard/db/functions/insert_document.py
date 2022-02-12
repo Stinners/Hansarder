@@ -2,26 +2,17 @@ from psycopg import Cursor
 
 from typing import Optional, List
 import pathlib
-import sys
 
 from ...scraper.scraper_types import HansardLink, SpeechLink, DebateLink
+from ..query_cache import QueryCache
 
 QUERY_DIRECTORY = pathlib.Path(__file__).parent.parent / "queries" 
 
-# TODO come up with a better way to do this
-def get_query(name):
-    filepath = QUERY_DIRECTORY / (name + ".sql")
-    with open(filepath, 'r') as f:
-        try:
-            return f.read()
-        except:
-            print(f"Couldn't read file #{filepath}")
-            sys.exit()
-
+cache = QueryCache(QUERY_DIRECTORY)
 
 def insert_document_head(doc: HansardLink, cur: Cursor) -> Optional[int]:
     cur.execute (
-        get_query("insert_document"),
+        cache.get_query("insert_document"),
         {
             "title": doc.title,
             "url": doc.url,
@@ -35,7 +26,7 @@ def insert_document_head(doc: HansardLink, cur: Cursor) -> Optional[int]:
 def insert_debate_head(debate: DebateLink, doc_key: int, cur: Cursor) -> Optional[int]:
     debate_values = {"title": debate.title, "debate_type": debate.type, "document_id": doc_key}
     cur.execute(
-        get_query("insert_debate"),
+        cache.get_query("insert_debate"),
         debate_values
     )
     fetch_id = cur.fetchone()
@@ -52,7 +43,7 @@ def insert_speeches(speeches: List[SpeechLink], debate_key: int, cur: Cursor):
     } for (i, it) in enumerate(speeches)]
 
     cur.executemany(
-        get_query("insert_speech"),
+        cache.get_query("insert_speech"),
         speech_mapping
     )
 
