@@ -7,7 +7,7 @@ from playwright.sync_api import Page, Browser
 
 from datetime import date
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 @dataclass
 class SpeechLink:
@@ -21,7 +21,7 @@ class SpeechLink:
 class DebateLink:
     title: str
     type: Optional[str]
-    speeches: list[SpeechLink]
+    speeches: List[SpeechLink]
 
 @dataclass 
 class SessionDate:
@@ -32,7 +32,7 @@ class SessionDate:
 class HansardLink:
     title: str
     dates: SessionDate
-    debates: list[DebateLink]
+    debates: List[DebateLink]
     url: str
 
 # We always read backwards in time, from the most recent date ot the oldest

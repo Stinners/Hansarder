@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
 from libhansard.db.db import get_db
+from libhansard.db.query_cache import QueryCache
 
 
 #######################################################
@@ -23,40 +24,47 @@ templates = Jinja2Templates(directory="templates")
 pool = get_db()
 conn = pool.getconn()
 
+queries = QueryCache(Path(__file__).parent / "queries")
+
 #######################################################
 #                    Routes                           #
 #######################################################
 
-
-# Load a random template and display it
 @app.get("/", response_class=HTMLResponse)
-async def get_random_speech(request: Request):
-    return serve_speech(request)
+async def home(request: Request):
+    topics = [topic for (_, topic) in get_topics()]
+    return templates.TemplateResponse("show_speech.html", {"request": request, "topics": topics})
 
+# This is called once a classified speech is submitted 
 @app.post("/classify_speech")
 async def classify_speech(request: Request):
     form_data = await request.form()
     speech_id = form_data["speech-id"]
-    check_tags = [topic for (topic, value) in form_data.items() if value == "on"]
-    return serve_speech(request)
+    checked_tags = [topic for (topic, value) in form_data.items() if value == "on"]
+    return get_random_speech()
+
+# "This is called to get a speech in the first place
+@app.get("/get_speech")
+async def serve_speech():
+    return get_random_speech
 
 #######################################################
 #                    Methods                          #
 #######################################################
 
-def serve_speech(request: Request):
-    speech_html, speech_id = get_speech_html()
-    topic_ids, topic_names = zip(*get_topics())
-    args = {
-        "request": request,
-        "speech_html": speech_html, 
-        "topics": topic_names,
-        "speech_id": speech_id,
-    }
-    return templates.TemplateResponse("show_speech.html", args)
+def get_random_speech():
+    with conn.cursor() as cur:
+        cur.execute(queries.get_query("select_speech.sql"))
+        speech = cur.fetchone()
 
-def get_speech_html() -> tuple[str, int]:
-    return "<h1>Speech-Contents</h1>", 1
+        if speech is None: return None
+
+        return {
+            "speech_id": speech[0],
+            "debate_id": speech[1],
+            "speech_type": speech[2],
+            "html": speech[3],
+        }
 
 def get_topics():
     with conn.cursor() as cur:
