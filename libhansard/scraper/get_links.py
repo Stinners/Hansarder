@@ -16,6 +16,8 @@ from .debate_types import DebateTypes
 
 T = TypeVar('T')
 
+def flatten(l: List[List[T]]) -> List[T]: return [item for sublist in l for item in sublist]
+
 def cleanup_checkpoint_file(scraper):
     if scraper.checkpoint_file == None: return 
     try:
@@ -25,7 +27,6 @@ def cleanup_checkpoint_file(scraper):
         pass
 
 def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
-    links = []
 
     # Goto the page to start 
     scraper.page.goto(scraper.start_url)
@@ -46,6 +47,7 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
                 logging.info(f"Getting Data for: {day.title}")
                 day.debates = get_debates(scraper, day_section)
                 get_html(scraper, day)
+                day.debates = elevate_questions(day.debates) 
                 write_checkpoint(scraper, day)
                 yield day
 
@@ -81,6 +83,31 @@ def get_type(debate_title: str) -> Optional[str]:
     #    if regex.search(debate_title): return type 
 
     return "Unknown"
+
+def question_make_title(speech: SpeechLink) -> str:
+    if speech.topic is not None:
+        return "Question: "+ speech.topic
+    else:
+        return "Interjection"
+
+# We want to create new debate for each member question
+# Despite these not being debates in the layout of the web page 
+# they should conceptually be debates since each one represents a 
+# distinct subject
+def elevate_questions(debates: List[DebateLink]) -> List[DebateLink]:
+    new_debates = []
+    for debate in debates:
+        if debate.type != "Questions":
+            new_debates.append(debate)
+        else:
+            elevated_debates = [DebateLink(
+                title = question_make_title(speech),
+                speeches = [speech],
+                type = "Questions",
+                ) for speech in debate.speeches]
+            new_debates += elevated_debates
+
+    return new_debates
 
 def get_debates(scraper: Scraper, elem: Locator) -> List[DebateLink]:
     logging.debug("Expanding Day")

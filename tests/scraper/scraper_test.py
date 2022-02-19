@@ -36,7 +36,10 @@ def test_basic_scraping():
     
     assert len(docs) == 4
     assert docs[0].title == "Thursday, 25 November 2021 - Volume 756"
-    assert len(docs[1].debates) == 17
+    assert len(docs[1].debates) == 28
+    
+    assert len([debate for debate in docs[1].debates if debate.type == "Questions"]) == 12
+    assert docs[1].debates[6].title == "Question: Prime Minister"
 
     karakia = docs[3].debates[0]
 

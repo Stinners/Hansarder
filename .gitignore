@@ -4,5 +4,6 @@ __pycache__
 .env_test
 
 *.logs
+*.checkpoint
 
 db/schema.sql
