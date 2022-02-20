@@ -7,13 +7,6 @@ import pickle
 import os
 import sys
 
-# Boilerplate to make relative imports work when this is run as a script
-if __name__ == "__main__" and __package__ is None:
-    import sys
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(1, parent_dir)
-    __package__ = "scraper"
-
 from .scraper_types import *
 from .get_links import get_links_in_range
 
@@ -29,6 +22,14 @@ def reload_checkpoint(checkpoint_file: Optional[str]) -> Optional[Checkpoint]:
         if os.path.exists(checkpoint_file):
             logging.warning(f"Couldn't load checkpoint file: {checkpoint_file}")
         return None
+
+def cleanup_checkpoint_file(scraper):
+    if scraper.checkpoint_file == None: return 
+    try:
+        os.remove(scraper.checkpoint_file)
+        logging.info("Removing checkpoint file")
+    except FileNotFoundError:
+        pass
 
 def init_scraper(
     browser: Browser, 
@@ -57,14 +58,6 @@ def get_logging_handlers(log_file: Optional[str], log_to_terminal: bool):
     if log_file != None: handlers.append(logging.FileHandler(log_file))
     if log_to_terminal: handlers.append(logging.StreamHandler(sys.stdout))
     return handlers
-
-def cleanup_checkpoint_file(scraper):
-    if scraper.checkpoint_file == None: return 
-    try:
-        os.remove(scraper.checkpoint_file)
-        logging.info("Removing checkpoint file")
-    except FileNotFoundError:
-        pass
 
 def scrape(
     stop: date | str,
@@ -95,6 +88,8 @@ def scrape(
         # Running the actual Scraper 
         for link in get_links_in_range(scraper):
             yield link
+
+        cleanup_checkpoint_file(scraper)
 
         browser.close()
 

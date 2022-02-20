@@ -18,13 +18,15 @@ T = TypeVar('T')
 
 def flatten(l: List[List[T]]) -> List[T]: return [item for sublist in l for item in sublist]
 
-def cleanup_checkpoint_file(scraper):
-    if scraper.checkpoint_file == None: return 
-    try:
-        os.remove(scraper.checkpoint_file)
-        logging.info("Removing checkpoint file")
-    except FileNotFoundError:
-        pass
+
+def extract_day_data(scraper: Scraper, day: HansardLink, day_section: Locator) -> HansardLink:
+    logging.info(f"Getting Data for: {day.title}")
+    day.debates = get_debates(scraper, day_section)
+    get_html(scraper, day)
+    day.debates = elevate_questions(day.debates) 
+    write_checkpoint(scraper, day)
+    return day
+
 
 def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
 
@@ -44,17 +46,12 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
 
             # Only do further processing if the link is in our date range
             if scraper.date_range.contains_link(day):
-                logging.info(f"Getting Data for: {day.title}")
-                day.debates = get_debates(scraper, day_section)
-                get_html(scraper, day)
-                day.debates = elevate_questions(day.debates) 
-                write_checkpoint(scraper, day)
-                yield day
+                yield extract_day_data(scraper, day, day_section)
 
-            # If we're out of the range then we can return 
+            # If we're out of the range then we can stop 
             elif scraper.date_range.done(day.dates):
                 logging.info(f"Stopped before: {day.title}")
-                break
+                return
             
             else:
                 logging.info(f"Skipping: {day.title}")
@@ -67,10 +64,6 @@ def get_links_in_range(scraper: Scraper) -> Iterator[HansardLink]:
 
         logging.debug(f"Sleeping for {scraper.seconds_delay} seconds")
         sleep(scraper.seconds_delay)
-
-    # We should cleanup the checkpoint file iff we reached the end 
-    # of the documents to scrape
-    cleanup_checkpoint_file(scraper)
 
 def get_type(debate_title: str) -> Optional[str]:
     for text, type in DebateTypes.exact_matches.items():
@@ -232,8 +225,6 @@ def get_hansard_link(elem: Locator) -> HansardLink:
             debates=[],
             url=url,
     )
-
-    #get_html(scraper, link)
 
     return link
 
