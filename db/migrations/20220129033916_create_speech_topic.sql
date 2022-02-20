@@ -1,14 +1,15 @@
 -- migrate:up
-CREATE TABLE IF NOT EXISTS speech_topic (
-    speech INT NOT NULL,
+CREATE TABLE IF NOT EXISTS debate_topic (
+    debate INT NOT NULL,
     topic INT NOT NULL,
     certanty FLOAT NOT NULL CHECK (certanty BETWEEN 0 AND 1),
+    PRIMARY KEY(debate, topic),
 
-    CONSTRAINT speech_topic_speech_fk
-        FOREIGN KEY (speech)
-        REFERENCES speech(id),
+    CONSTRAINT debate_topic_debate_fk
+        FOREIGN KEY (debate)
+        REFERENCES debate(id),
 
-    CONSTRAINT speech_topic_topic_fk
+    CONSTRAINT debate_topic_topic_fk
         FOREIGN KEY (topic)
         REFERENCES topic(id)
 )

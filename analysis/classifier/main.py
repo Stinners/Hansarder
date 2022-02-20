@@ -33,37 +33,33 @@ queries = QueryCache(Path(__file__).parent / "queries")
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     topics = [topic for (_, topic) in get_topics()]
-    return templates.TemplateResponse("show_speech.html", {"request": request, "topics": topics})
+    debate = get_random_debate()
+    return templates.TemplateResponse("show_debate.html", {"request": request, "topics": topics, **debate})
 
 # This is called once a classified speech is submitted 
-@app.post("/classify_speech")
-async def classify_speech(request: Request):
-    form_data = await request.form()
-    speech_id = form_data["speech-id"]
-    checked_tags = [topic for (topic, value) in form_data.items() if value == "on"]
-    return get_random_speech()
-
-# "This is called to get a speech in the first place
-@app.get("/get_speech")
-async def serve_speech():
-    return get_random_speech
+#@app.post("/classify_debate")
+#async def classify_debate(request: Request):
+#    form_data = await request.form()
+#    debate_id = form_data["debate-id"]
+#    checked_tags = [topic for (topic, value) in form_data.items() if value == "on"]
+#    return get_random_debate()
 
 #######################################################
-#                    Methods                          #
+#                    Utilities                        #
 #######################################################
 
-def get_random_speech():
+def get_random_debate():
     with conn.cursor() as cur:
-        cur.execute(queries.get_query("select_speech.sql"))
-        speech = cur.fetchone()
+        cur.execute(queries.get_query("select_debate"))
+        debate = cur.fetchone()
 
-        if speech is None: return None
+        if debate is None: 
+            raise ValueError("Couldn't read debate from db")
 
         return {
-            "speech_id": speech[0],
-            "debate_id": speech[1],
-            "speech_type": speech[2],
-            "html": speech[3],
+            "debate_id": debate[0],
+            "debate_title": debate[1],
+            "html": debate[2],
         }
 
 def get_topics():

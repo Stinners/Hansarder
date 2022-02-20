@@ -4,13 +4,9 @@ from pathlib import Path
 
 sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
-
-#from ...libhansard.scraper.main import scrape
-#from ...libhansard.scraper.scraper_types import *
 from libhansard.scraper.main import scrape
 from libhansard.scraper.scraper_types import *
 
-import logging 
 import calendar
 import itertools
 import calendar
@@ -43,7 +39,7 @@ def validate_document(doc: HansardLink):
 
 # This is mostly just testing that we don't throw an exception
 def test_get_one_document():
-    # Set a log level some arbitrary time in the past 
+    # Set a stop some arbitrary time in the past 
     scraper = scrape(stop="2021-08-04")
     document = next(scraper)
 
@@ -51,9 +47,7 @@ def test_get_one_document():
 
 # This takes a very long time, on order of 10 minutes
 def test_get_from_over_page():
-    scraper = scrape(
-        stop = date.today() - timedelta(days=365),
-    )
+    scraper = scrape(stop="2021-01-10")
 
     # Taking 21 documents ensures that we have to 
     # Take docs from more than one page

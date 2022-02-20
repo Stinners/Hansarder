@@ -1,4 +1,4 @@
-.classify-speech {
+.classify-debate {
     display: flex;
     max-width: 1400px;
     justify-content: space-between;
@@ -15,7 +15,7 @@
     font-size: 0.8em;
 }
 
-.speech-container {
+.debate-container {
     flex-basis: 70%;
 }
 
