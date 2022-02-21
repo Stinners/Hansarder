@@ -1,11 +1,35 @@
+
+.navbar__item {
+    margin-left: 3em;
+}
+
+.navbar__item a {
+    color: white;
+}
+
+.navbar__item a:hover {
+    text-decoration: underline;
+}
+
+.navbar__title {
+    margin-left: 2em;
+}
+
+.navbar__title h1 {
+    font-size: 1.5em;
+}
+
+.navbar {
+    background-color: #58b7da;
+}
+
 .classify-debate {
-    display: flex;
-    max-width: 1400px;
+    max-width: 1080px;
     justify-content: space-between;
 }
 
 .topic-container {
-    flex-basis: 25%;
+    flex-basis: 35%;
     font-size: 0.8em;
     position: sticky;
     top: 0px;
@@ -14,9 +38,22 @@
 .topic__label {
     font-size: 0.8em;
 }
+.topics h2 {
+    margin-bottom: 0.2em;
+}
+
+.topics__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
 
 .debate-container {
-    flex-basis: 70%;
+    flex-basis: 60%;
+}
+
+.debate__container.debate__container p {
+    font-size: 0.8em;
+    margin-bottom: 0.6em;
 }
 
 

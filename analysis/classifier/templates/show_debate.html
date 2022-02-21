@@ -2,6 +2,12 @@
 {% block content %}
   <main class="classify-debate">
 
+    <section class="debate">
+        <div class="debate__container">
+            {{ html|safe }}
+        </div>
+    </section>
+
     <div class="topics-container">
         <form class="topics" action="/classify_debate" method="post">
             <h2>Topics</h2>
@@ -17,12 +23,5 @@
             <input type="submit" role="button" value="Classify">
         </form>
     </div>
-
-    <section class="debate">
-        <h3 class="debate__title">{{ debate_title }}</h3>
-        <div class="debate__container">
-            {{ html|safe }}
-        </div>
-    </section>
   </main>
 {% endblock %}

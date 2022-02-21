@@ -1,3 +1,3 @@
 #! /usr/bin/env sh
 
-uvicorn main:app --reload
+uvicorn main:app --reload --reload-include *.css

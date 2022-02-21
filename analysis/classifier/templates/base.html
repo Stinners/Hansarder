@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+    <nav class="navbar">
+        <ul>
+          <li class="navbar__title"><h1>{{ page }}<h1></li>
+            <li class="navbar__item"><a href="/">Classifier</a></li>
+            <li class="navbar__item"><a href="/statistics">Statistics</a></li>
+        </ul>
+    </nav>
     {% block content %}
     {% endblock %}
 </body>

@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from typing import List
 import sys
 
 from fastapi import FastAPI, Request
@@ -34,15 +35,21 @@ queries = QueryCache(Path(__file__).parent / "queries")
 async def home(request: Request):
     topics = [topic for (_, topic) in get_topics()]
     debate = get_random_debate()
-    return templates.TemplateResponse("show_debate.html", {"request": request, "topics": topics, **debate})
+    return templates.TemplateResponse("show_debate.html", {"request": request, "topics": topics, "page": "Classify", **debate})
 
 # This is called once a classified speech is submitted 
-#@app.post("/classify_debate")
-#async def classify_debate(request: Request):
-#    form_data = await request.form()
-#    debate_id = form_data["debate-id"]
-#    checked_tags = [topic for (topic, value) in form_data.items() if value == "on"]
-#    return get_random_debate()
+@app.post("/classify_debate")
+async def classify_debate(request: Request):
+    form_data = await request.form()
+    debate_id = int(form_data["debate-id"])
+    checked_tags = [topic for (topic, value) in form_data.items() if value == "on"]
+    insert_classifications(debate_id, checked_tags)
+    return await home(request)
+
+@app.get("/statistics")
+def statistics(request: Request):
+    return templates.TemplateResponse("show_statistics.html", {"request": request, "page": "Statistics"})
+
 
 #######################################################
 #                    Utilities                        #
@@ -71,3 +78,14 @@ def get_topics():
         """)
         topics = cur.fetchall()
         return topics
+
+def insert_classifications(debate_id: int, topics: List[str]):
+        with conn.cursor() as cur:
+            if topics != []:
+                parameters = [{"debate_id": debate_id, "certanty": 0.95, "topic": topic}
+                              for topic in topics]
+                cur.executemany(queries.get_query("add_classification"), parameters)
+            else:
+                cur.execute(queries.get_query("insert_null_classification"), {"debate_id": debate_id, "certanty": 0.95})
+            conn.commit()
+

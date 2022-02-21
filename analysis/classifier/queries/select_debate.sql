@@ -10,7 +10,7 @@ SELECT
 from debate 
 left join debate_topic on debate_topic.debate = debate.id
 inner join speech on speech.debate = debate.id
-where debate_topic.topic is null
+where debate_topic.debate is null
   and debate.debate_type != 1  -- karakia 
   and debate.debate_type != 3  -- preamble 
   and debate.debate_type != 12 -- point of order

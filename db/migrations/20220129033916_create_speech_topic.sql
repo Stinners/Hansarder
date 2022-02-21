@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TABLE IF NOT EXISTS debate_topic (
     debate INT NOT NULL,
-    topic INT NOT NULL,
+    topic INT,
     certanty FLOAT NOT NULL CHECK (certanty BETWEEN 0 AND 1),
     PRIMARY KEY(debate, topic),
 
