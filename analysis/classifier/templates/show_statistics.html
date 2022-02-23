@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
   <main class="statistics">
-      <h1>TODO</h1>
+      <section><span>Classifed Debates: {{ stats.num_debates_classified }}</span></section>
+      <section>
+          <ul>
+              {% for topic in stats.num_by_topic %}
+              <li><span>{{ topic[0] }}: {{ topic[1] }}</span></li>
+              {% endfor %} 
+          </ul>
+      </section>
   </main>
 {% endblock %}

@@ -1,7 +1,8 @@
 
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 import sys
+from dataclasses import dataclass
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +13,11 @@ sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
 from libhansard.db.db import get_db
 from libhansard.db.query_cache import QueryCache
+
+@dataclass 
+class Statistics:
+    num_debates_classified: int
+    num_by_topic: List[Tuple[str, int]]
 
 
 #######################################################
@@ -48,7 +54,8 @@ async def classify_debate(request: Request):
 
 @app.get("/statistics")
 def statistics(request: Request):
-    return templates.TemplateResponse("show_statistics.html", {"request": request, "page": "Statistics"})
+    stats = get_statistics()
+    return templates.TemplateResponse("show_statistics.html", {"request": request, "page": "Statistics", "stats": stats})
 
 
 #######################################################
@@ -88,4 +95,21 @@ def insert_classifications(debate_id: int, topics: List[str]):
             else:
                 cur.execute(queries.get_query("insert_null_classification"), {"debate_id": debate_id, "certanty": 0.95})
             conn.commit()
+
+def get_statistics() -> Statistics:
+    with conn.cursor() as cur:
+        cur.execute(queries.get_query("get_number_classified"))
+        num_classifed = cur.fetchone()
+
+        cur.execute(queries.get_query("get_classified_numbers"))
+        classified_numbers = cur.fetchall()
+
+        if num_classifed is None or classified_numbers is None:
+            raise ValueError("Couldn't read statistics from database")
+        else:
+            num_classifed = num_classifed[0]
+
+        stats = Statistics(num_classifed, classified_numbers)
+
+        return stats
 
