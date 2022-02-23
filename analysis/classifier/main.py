@@ -87,13 +87,15 @@ def get_topics():
         return topics
 
 def insert_classifications(debate_id: int, topics: List[str]):
+
+        if topics == []:
+            topics = ["None"]
+
+        parameters = [{"debate_id": debate_id, "certanty": 0.95, "topic": topic}
+                      for topic in topics]
+
         with conn.cursor() as cur:
-            if topics != []:
-                parameters = [{"debate_id": debate_id, "certanty": 0.95, "topic": topic}
-                              for topic in topics]
-                cur.executemany(queries.get_query("add_classification"), parameters)
-            else:
-                cur.execute(queries.get_query("insert_null_classification"), {"debate_id": debate_id, "certanty": 0.95})
+            cur.executemany(queries.get_query("add_classification"), parameters)
             conn.commit()
 
 def get_statistics() -> Statistics:

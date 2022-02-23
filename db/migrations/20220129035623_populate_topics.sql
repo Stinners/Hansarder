@@ -25,7 +25,8 @@ VALUES
     ('Digital Economy and Communication'),
     ('Women'),
     ('Tourism'),
-    ('Foreign Affairs');
+    ('Foreign Affairs'),
+    ('None');
 
 -- migrate:down
 DELETE FROM topic;
