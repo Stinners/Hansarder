@@ -56,4 +56,25 @@
     margin-bottom: 0.6em;
 }
 
+/* Statistics */
 
+.statistics {
+    width: 1080px;
+    margin: auto;
+    padding: 0;
+}
+
+.statistics__section {
+    margin: 1em 0 0 0;
+    border-style: solid;
+    border-width: 1px;
+    border-color:  #58b7da;
+    border-radius: 5px;
+    padding: 1em;
+}
+
+.statistics__topic-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 0;
+}

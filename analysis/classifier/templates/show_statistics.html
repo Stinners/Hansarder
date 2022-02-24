@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
   <main class="statistics">
-      <section><span>Classifed Debates: {{ stats.num_debates_classified }}</span></section>
-      <section>
-          <ul>
+      <section class="statistics__section">
+          <span>Classifed Debates: {{ stats.num_debates_classified }}</span>
+      </section>
+      <section class="statistics__section">
+          <ul class="statistics__topic-list">
               {% for topic in stats.num_by_topic %}
               <li><span>{{ topic[0] }}: {{ topic[1] }}</span></li>
               {% endfor %} 
