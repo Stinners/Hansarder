@@ -5,5 +5,6 @@ __pycache__
 
 *.logs
 *.checkpoint
+*.pickle
 
 db/schema.sql
