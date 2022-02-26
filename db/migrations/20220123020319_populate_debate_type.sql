@@ -13,6 +13,7 @@ VALUES
     ('Urgent Debate'),
     ('Special Debate'),
     ('Points of Order'),
+    ('Speaker''s Ruling'),
     ('Unknown');
 
 -- migrate:down

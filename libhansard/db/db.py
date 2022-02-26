@@ -1,12 +1,9 @@
-from dotenv import load_dotenv
 from psycopg_pool import ConnectionPool
 
 import os
 import sys
 
 def get_connection_info() -> str:
-    load_dotenv()
-
     env = os.getenv("ENV")
     if env == "PROD":
         dbmate_connection_string = os.getenv("PROD_DATABASE_URL")

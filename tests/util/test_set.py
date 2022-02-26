@@ -1,14 +1,17 @@
 
+
+
 import sys
-from pathlib import Path
 import pickle
 import logging
+from pathlib import Path
 from typing import List
 
 sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
 from libhansard.scraper.main import scrape
 from libhansard.scraper.scraper_types import *
+from libhansard.db.functions.insert_document import insert_document
 
 # Scrape a known set of documents and store them in a pickle file
 # Note this test set isn't commited to version control
@@ -26,6 +29,8 @@ EXPECTED_DOCS = 18
 
 ##### Functions 
 
+# Download the documents in the time range and store in a pickle file
+# The time range and the filename can be configured in the config section of this file
 def make_test_set():
     docs = [doc for doc in scrape(
         start_url = START_URL,
@@ -50,6 +55,7 @@ def make_test_set():
     with open(TEST_SET_FILE_PATH, 'wb') as f:
         pickle.dump(docs, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+# Load a previously scraped test set from the picke file
 def load_test_set() -> List[HansardLink]:
     with open(TEST_SET_FILE_PATH, 'rb') as f:
         docs = pickle.load(f)
@@ -58,8 +64,11 @@ def load_test_set() -> List[HansardLink]:
 
         return docs
 
-# If we run this file standalone then we probably want 
-# to rejuvenate the test set 
-if __name__ == "__main__":
-    make_test_set()
+# Load a previosly scraped test set and store it in hansardDB 
+def insert_test_set(conn):
+    test_set = load_test_set()
+    for doc in test_set:
+        insert_document(conn, doc)
+    conn.commit()
+
 

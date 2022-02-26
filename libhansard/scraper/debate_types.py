@@ -9,6 +9,10 @@ class DebateTypes:
         "General Debate": "General Debate"
     }
 
+    starts_with: dict[str, str] = {
+        "Speaker's Ruling": "Speaker's Ruling"
+    }
+
     contains: dict[str, str] = {
         "— In Committee—": "In Committee",
         "First Reading": "First Reading",

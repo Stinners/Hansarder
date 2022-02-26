@@ -69,6 +69,9 @@ def get_type(debate_title: str) -> Optional[str]:
     for text, type in DebateTypes.exact_matches.items():
         if debate_title == text: return type
 
+    for text, type in DebateTypes.starts_with.items():
+        if debate_title.startswith(text): return type
+
     for to_match, debate_type in DebateTypes.contains.items():
         if to_match in debate_title: return debate_type
 
