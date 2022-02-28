@@ -46,14 +46,20 @@ def set_env_test():
 
 # The Maritime powers bill -second reading, which was interupted - so there was no vote
 
-# 'Land Transport (Clean Vehicles) Amendment Bill — Second Reading' has the votes listed twice for some reason
+# Cases: Examples
+#   - Split Vote: 'Contraception, Sterilisation, and Abortion (Safe Areas) Amendment Bill — Second Reading'
+#   - Debate Interupted: 'The Maritime powers bill - Second reading'
+#   - Unanimous vote: 'Gambling (Reinstating COVID-19 Modification) Amendment Bill — Third Reading'
+#   - Votes listed multiple times: 'Land Transport (Clean Vehicles) Amendment Bill — Second Reading'
+#   - Full Conscience vote: 'End of Life Choice Bill — Third Reading'
+#                           Will need to add to the test set
+#                           https://www.parliament.nz/en/pb/hansard-debates/rhr/combined/HansDeb_20191113_20191113_16
 
 def test_get_debates():
     pool = get_db()
     debates = get_debates_by_type("Third Reading", pool.getconn())
 
-    # This number should go down (probably to 19) we next rebuild the test set
-    assert len(debates) == 20
+    assert len(debates) == 21
     assert all(["Third Reading" in debate.title for debate in debates])
 
 # A case where a vote is called and there are parties on either side
@@ -67,7 +73,6 @@ def test_normal_reading():
     vote_type, votes = parse_debate(debate)
 
     assert vote_type == VoteType.PARTY
-
     assert votes == [
         Vote("New Zealand Labour", 65, VoteChoice.AYE),
         Vote("Green Party of Aotearoa New Zealand", 10, VoteChoice.AYE),

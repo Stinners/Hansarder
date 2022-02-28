@@ -25,9 +25,22 @@ START_URL = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.Parli
 START_DATE = "2022-02-18"
 STOP_DATE = "2021-11-18"
 
-EXPECTED_DOCS = 18
+EXPECTED_DOCS = 19
 
 ##### Functions 
+
+# We want to get this specific debate for testing purposes 
+def get_conscience_vote_example():
+    scraper = scrape(
+        start_url = "https://www.parliament.nz/en/pb/hansard-debates/rhr/?criteria.ParliamentNumber=52&criteria.Timeframe=range&criteria.DateFrom=2019-11-09&criteria.DateTo=2019-11-13&parliamentStartDate=2017-11-07&parliamentEndDate=2020-11-20",
+        stop = "2019-11-11",
+    )
+    doc = next(scraper)
+
+    debate_titles = [debate.title for debate in doc.debates]
+    assert 'End of Life Choice Bill — Third Reading' in debate_titles
+
+    return doc
 
 # Download the documents in the time range and store in a pickle file
 # The time range and the filename can be configured in the config section of this file
@@ -38,6 +51,8 @@ def make_test_set():
         start = START_DATE,
         log_level = logging.INFO,
     )]
+    docs.append(get_conscience_vote_example())
+
     assert len(docs) == EXPECTED_DOCS, "Did not find expected number of documents"
 
     log_message = ""
@@ -64,11 +79,13 @@ def load_test_set() -> List[HansardLink]:
 
         return docs
 
-# Load a previosly scraped test set and store it in hansardDB 
+# Load a previously scraped test set and store it in hansardDB 
 def insert_test_set(conn):
     test_set = load_test_set()
     for doc in test_set:
         insert_document(conn, doc)
     conn.commit()
 
+if __name__ == "__main__":
+    make_test_set()
 
