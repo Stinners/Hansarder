@@ -64,12 +64,13 @@ def test_normal_reading():
     debates = get_debates_by_type("First Reading", pool.getconn())
     debate = next(debate for debate in debates if debate.title == 'Oranga Tamariki Amendment Bill — First Reading')
 
-    votes = parse_debate(debate)
-    import pdb; pdb.set_trace()
+    vote_type, votes = parse_debate(debate)
+
+    assert vote_type == VoteType.PARTY
 
     assert votes == [
-        ("New Zealand Labour", 65, VoteChoice.AYE),
-        ("Green Party of Aotearoa New Zealand", 10, VoteChoice.AYE),
-        ("ACT New Zealand", 10, VoteChoice.AYE),
-        ("New Zealand National", 33, VoteChoice.NAY)
+        Vote("New Zealand Labour", 65, VoteChoice.AYE),
+        Vote("Green Party of Aotearoa New Zealand", 10, VoteChoice.AYE),
+        Vote("ACT New Zealand", 10, VoteChoice.AYE),
+        Vote("New Zealand National", 33, VoteChoice.NAY)
     ]
