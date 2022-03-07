@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS vote (
     id SERIAL PRIMARY KEY NOT NULL,
     choice BOOL NOT NULL,
+    debate int NOT NULL,
     party INT,
     mp INT,
     CONSTRAINT mp_xor_party check ((mp NOTNULL and party ISNULL) or
@@ -12,7 +13,10 @@ CREATE TABLE IF NOT EXISTS vote (
     	REFERENCES party(id),
     CONSTRAINT mp_fk
     	FOREIGN KEY (mp)
-    	REFERENCES member(id)
+    	REFERENCES member(id),
+    CONSTRAINT debate_fk
+        FOREIGN KEY (debate)
+        REFERENCES debate(id)
 )
 -- migrate:down
 DROP TABLE vote;

@@ -2,11 +2,11 @@ import sys
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Tuple
-import enum
 
 sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
 from libhansard.db.query_cache import QueryCache
+from libhansard.vote_types import *
 
 from bs4 import BeautifulSoup
 
@@ -22,15 +22,6 @@ class Debate:
     title: str
     debate_type: str
     html: BeautifulSoup
-
-VoteType = enum.Enum("VoteType", "PARTY CONSCIENCE")
-VoteChoice = enum.Enum("VoteChoice", "AYE NAY")
-
-@dataclass
-class Vote:
-    voter: str
-    num_votes: int
-    choice: VoteChoice
 
 class VoteParseError(Exception):
     pass
@@ -63,7 +54,7 @@ def process_party_votes(total_count: str, voter_text: str) -> List[Vote]:
     total = int(count_text)
 
     votes = get_voters_and_numbers(voter_text) 
-    votes = [Vote(vote[0], vote[1], choice) for vote in votes]
+    votes = [Vote(vote[0], vote[1], choice, VoteType.PARTY) for vote in votes]
 
     try:
         validate_parties([vote.voter for vote in votes])

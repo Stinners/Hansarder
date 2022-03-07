@@ -1,0 +1,1 @@
+from party_normalizer import normalize_party_name

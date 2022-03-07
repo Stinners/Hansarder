@@ -1,14 +1,13 @@
-
-
-
 import sys
 import pickle
 import logging
 from pathlib import Path
 from typing import List
+import dotenv
 
 sys.path.insert(1, str(Path(__file__).parent.parent.parent))
 
+from libhansard.db.db import get_db
 from libhansard.scraper.main import scrape
 from libhansard.scraper.scraper_types import *
 from libhansard.db.functions.insert_document import insert_document
@@ -87,5 +86,8 @@ def insert_test_set(conn):
     conn.commit()
 
 if __name__ == "__main__":
-    make_test_set()
+    dotenv.load_dotenv()
+    pool = get_db()
+    insert_test_set(pool.getconn())
+    print("Inserted")
 

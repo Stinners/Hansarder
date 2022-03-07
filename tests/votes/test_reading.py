@@ -74,8 +74,8 @@ def test_normal_reading():
 
     assert vote_type == VoteType.PARTY
     assert votes == [
-        Vote("New Zealand Labour", 65, VoteChoice.AYE),
-        Vote("Green Party of Aotearoa New Zealand", 10, VoteChoice.AYE),
-        Vote("ACT New Zealand", 10, VoteChoice.AYE),
-        Vote("New Zealand National", 33, VoteChoice.NAY)
+        Vote("New Zealand Labour", 65, VoteChoice.AYE, VoteType.PARTY),
+        Vote("Green Party of Aotearoa New Zealand", 10, VoteChoice.AYE, VoteType.PARTY),
+        Vote("ACT New Zealand", 10, VoteChoice.AYE, VoteType.PARTY),
+        Vote("New Zealand National", 33, VoteChoice.NAY, VoteType.PARTY)
     ]
